@@ -1,17 +1,96 @@
 {
-    "name": "Entregas Camaquã Premium",
+    "name": "Entregas Camaquã",
     "short_name": "Entregas",
-    "description": "App com navegação por voz, distâncias e rota otimizada",
+    "description": "App para motoboy com rota otimizada, navegação por voz e distâncias",
     "start_url": "index.html",
     "display": "standalone",
     "background_color": "#0a0a0a",
     "theme_color": "#0a0a0a",
     "orientation": "portrait",
+    "scope": "/",
+    "categories": ["business", "productivity", "navigation"],
+    "lang": "pt-BR",
+    "dir": "ltr",
+    "display_override": ["window-controls-overlay", "standalone"],
+    
     "icons": [
         {
-            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚴</text></svg>",
+            "src": "https://via.placeholder.com/192x192/ff6b35/ffffff?text=🚴",
             "sizes": "192x192",
-            "type": "image/svg+xml"
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "https://via.placeholder.com/512x512/ff6b35/ffffff?text=🚴",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "https://via.placeholder.com/192x192/ff6b35/ffffff?text=🚴",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "https://via.placeholder.com/512x512/ff6b35/ffffff?text=🚴",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
         }
-    ]
+    ],
+    
+    "screenshots": [
+        {
+            "src": "https://via.placeholder.com/360x640/0d0d0d/ff6b35?text=Entregas",
+            "sizes": "360x640",
+            "type": "image/png",
+            "platform": "narrow",
+            "label": "Tela principal do app"
+        }
+    ],
+    
+    "shortcuts": [
+        {
+            "name": "Nova Entrega",
+            "short_name": "Nova",
+            "description": "Adicionar uma nova entrega",
+            "url": "index.html?action=add",
+            "icons": [
+                {
+                    "src": "https://via.placeholder.com/96x96/4CAF50/ffffff?text=+",
+                    "sizes": "96x96",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "Ver Histórico",
+            "short_name": "Histórico",
+            "description": "Ver histórico de entregas",
+            "url": "index.html?action=history",
+            "icons": [
+                {
+                    "src": "https://via.placeholder.com/96x96/2196F3/ffffff?text=📋",
+                    "sizes": "96x96",
+                    "type": "image/png"
+                }
+            ]
+        }
+    ],
+    
+    "share_target": {
+        "action": "/",
+        "method": "GET",
+        "enctype": "application/x-www-form-urlencoded",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    },
+    
+    "prefer_related_applications": false,
+    "related_applications": [],
+    "iarc_rating_id": ""
 }
