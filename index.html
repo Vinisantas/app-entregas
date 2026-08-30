@@ -41,7 +41,6 @@
             flex-direction: column;
         }
 
-        /* HEADER */
         .app-header {
             display: flex;
             justify-content: space-between;
@@ -127,7 +126,6 @@
             50% { transform: scale(1.05); }
         }
 
-        /* CARDS */
         .card {
             background: #151515;
             border-radius: 16px;
@@ -136,7 +134,6 @@
             border: 1px solid #1f1f1f;
         }
 
-        /* STATS */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -168,7 +165,6 @@
             margin-top: 2px;
         }
 
-        /* PONTO DE PARTIDA */
         .ponto-card {
             background: #151515;
             border-radius: 16px;
@@ -223,7 +219,6 @@
             transform: scale(0.95);
         }
 
-        /* TOTAL GANHO */
         .total-card {
             background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
             border-radius: 16px;
@@ -246,7 +241,6 @@
             color: #ffd700;
         }
 
-        /* FORMULÁRIO */
         .form-card {
             background: #151515;
             border-radius: 16px;
@@ -280,10 +274,20 @@
             color: #555;
         }
 
-        .input-group .input-rua { flex: 2; }
-        .input-group .input-numero { flex: 0.7; width: 70px; }
-        .input-group .input-cliente { flex: 1; }
-        .input-group .input-valor { flex: 0.6; width: 60px; }
+        .input-group .input-rua {
+            flex: 2;
+        }
+        .input-group .input-numero {
+            flex: 0.7;
+            width: 70px;
+        }
+        .input-group .input-cliente {
+            flex: 1;
+        }
+        .input-group .input-valor {
+            flex: 0.6;
+            width: 60px;
+        }
 
         .input-group .btn-add {
             background: #4CAF50;
@@ -302,7 +306,6 @@
             transform: scale(0.95);
         }
 
-        /* BOTÕES */
         .btn-group {
             display: flex;
             gap: 4px;
@@ -330,19 +333,54 @@
             transform: scale(0.95);
         }
 
-        .btn-primary { background: #ff6b35; color: #fff; }
-        .btn-secondary { background: #1a1a1a; color: #fff; border: 1px solid #2a2a2a; }
-        .btn-success { background: #2e7d32; color: #fff; }
-        .btn-danger { background: #c62828; color: #fff; }
-        .btn-info { background: #1a237e; color: #fff; }
-        .btn-gold { background: #f9a825; color: #000; }
-        .btn-whats { background: #075e54; color: #fff; }
-        .btn-voice { background: #880e4f; color: #fff; }
-        .btn-dark { background: #1f1f1f; color: #fff; border: 1px solid #2a2a2a; }
-        .btn-purple { background: #4a148c; color: #fff; }
-        .btn-mic { background: #c62828; color: #fff; animation: pulse 1.5s infinite; }
+        .btn-primary {
+            background: #ff6b35;
+            color: #fff;
+        }
+        .btn-secondary {
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #2a2a2a;
+        }
+        .btn-success {
+            background: #2e7d32;
+            color: #fff;
+        }
+        .btn-danger {
+            background: #c62828;
+            color: #fff;
+        }
+        .btn-info {
+            background: #1a237e;
+            color: #fff;
+        }
+        .btn-gold {
+            background: #f9a825;
+            color: #000;
+        }
+        .btn-whats {
+            background: #075e54;
+            color: #fff;
+        }
+        .btn-voice {
+            background: #880e4f;
+            color: #fff;
+        }
+        .btn-dark {
+            background: #1f1f1f;
+            color: #fff;
+            border: 1px solid #2a2a2a;
+        }
+        .btn-purple {
+            background: #4a148c;
+            color: #fff;
+        }
+        .btn-mic {
+            background: #c62828;
+            color: #fff;
+            animation: pulse 1.5s infinite;
+        }
 
-        /* LISTA */
         .lista-card {
             background: #151515;
             border-radius: 16px;
@@ -453,8 +491,12 @@
             transform: scale(0.85);
         }
 
-        .btn-concluir { color: #4CAF50; }
-        .btn-delete { color: #ef5350; }
+        .btn-concluir {
+            color: #4CAF50;
+        }
+        .btn-delete {
+            color: #ef5350;
+        }
 
         .empty-state {
             text-align: center;
@@ -471,7 +513,6 @@
             font-size: 13px;
         }
 
-        /* ROTA INFO */
         .rota-card {
             background: #151515;
             border-radius: 16px;
@@ -483,8 +524,14 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .rota-card .row {
@@ -506,10 +553,13 @@
             color: #ffd700;
             font-weight: 600;
         }
-        .rota-card .value.entregas { color: #4CAF50; }
-        .rota-card .value.volta { color: #ff6b35; }
+        .rota-card .value.entregas {
+            color: #4CAF50;
+        }
+        .rota-card .value.volta {
+            color: #ff6b35;
+        }
 
-        /* MAPA */
         #mapaContainer {
             margin-top: 8px;
             border-radius: 16px;
@@ -540,7 +590,6 @@
             background: #2a2a2a;
         }
 
-        /* VOZ TOAST */
         .voice-toast {
             position: fixed;
             bottom: 30px;
@@ -570,7 +619,6 @@
             background: #1a0a0a;
         }
 
-        /* MODAL */
         .modal {
             display: none;
             position: fixed;
@@ -586,8 +634,12 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .modal-content {
@@ -708,7 +760,6 @@
             background: #0d47a1;
         }
 
-        /* SCROLLBAR */
         ::-webkit-scrollbar {
             width: 3px;
         }
@@ -746,7 +797,6 @@
             }
         }
 
-        /* DARK MODE */
         body.dark-mode {
             background: #050505;
         }
@@ -793,7 +843,6 @@
             background: #151515;
         }
 
-        /* COMANDOS DE VOZ - LISTA FLUTUANTE */
         .comandos-voz {
             position: fixed;
             bottom: 80px;
@@ -841,7 +890,7 @@
 <body>
 
     <div class="app-container">
-        <!-- ===== HEADER ===== -->
+        <!-- HEADER -->
         <header class="app-header">
             <div class="logo">
                 <div class="icon">🚴</div>
@@ -850,7 +899,7 @@
             <div class="status-badge online" id="status">Online</div>
         </header>
 
-        <!-- ===== STATS ===== -->
+        <!-- STATS -->
         <div class="stats-grid">
             <div class="stat-item">
                 <span class="number" id="totalHoje">0</span>
@@ -866,13 +915,13 @@
             </div>
         </div>
 
-        <!-- ===== TOTAL GANHO ===== -->
+        <!-- TOTAL GANHO -->
         <div class="total-card">
             <span class="label">💰 Total ganho</span>
             <span class="value" id="totalGanho">R$ 0,00</span>
         </div>
 
-        <!-- ===== PONTO DE PARTIDA ===== -->
+        <!-- PONTO DE PARTIDA -->
         <div class="ponto-card">
             <span class="icon">🏠</span>
             <div class="info">
@@ -882,7 +931,7 @@
             <button class="btn-editar" id="btnEditarPonto">Editar</button>
         </div>
 
-        <!-- ===== ROTA INFO ===== -->
+        <!-- ROTA INFO -->
         <div class="rota-card" id="rotaInfo">
             <div class="row"><span class="label">📍 Saída</span><span class="value" id="rotaPartida">-</span></div>
             <div class="row"><span class="label">📦 Entregas</span><span class="value entregas" id="rotaEntregas">0</span></div>
@@ -892,7 +941,7 @@
             <div class="row" style="border-bottom:none;"><span class="label">📋 Ordem</span><span class="value" id="rotaOrdem" style="font-size:10px;">-</span></div>
         </div>
 
-        <!-- ===== FORMULÁRIO ===== -->
+        <!-- FORMULÁRIO -->
         <div class="form-card">
             <div class="input-group">
                 <input type="text" id="rua" placeholder="Rua (ex: 15 de Novembro)" class="input-rua">
@@ -925,7 +974,7 @@
             </div>
         </div>
 
-        <!-- ===== LISTA ===== -->
+        <!-- LISTA -->
         <div class="lista-card">
             <div class="header">
                 <h2>📦 Entregas do dia</h2>
@@ -934,14 +983,14 @@
             <ul class="lista-entregas" id="listaEntregas"></ul>
         </div>
 
-        <!-- ===== MAPA ===== -->
+        <!-- MAPA -->
         <div id="mapaContainer">
             <div id="mapa"></div>
             <button class="btn-fechar-mapa" id="fecharMapa">✕ Fechar Mapa</button>
         </div>
     </div>
 
-    <!-- ===== COMANDOS DE VOZ ===== -->
+    <!-- COMANDOS DE VOZ -->
     <div class="comandos-voz" id="comandosVoz">
         <div class="titulo">🎤 Comandos de voz disponíveis:</div>
         <div class="comando"><strong>"Adicionar [rua] [número]"</strong> - Adiciona entrega</div>
@@ -953,7 +1002,7 @@
         <div class="comando"><strong>"Ajuda"</strong> - Mostra esta lista</div>
     </div>
 
-    <!-- ===== MODAL HISTÓRICO ===== -->
+    <!-- MODAL HISTÓRICO -->
     <div class="modal" id="historicoModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -973,7 +1022,7 @@
         </div>
     </div>
 
-    <!-- ===== MODAL EDITAR PONTO ===== -->
+    <!-- MODAL EDITAR PONTO -->
     <div class="modal" id="pontoModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -988,14 +1037,14 @@
         </div>
     </div>
 
-    <!-- ===== TOAST DE VOZ ===== -->
+    <!-- TOAST DE VOZ -->
     <div class="voice-toast" id="voiceToast"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
     </script>
     <script>
         // ==================== APP COMPLETO ====================
-        console.log('🚴 App Entregas Camaquã - Versão Corrigida');
+        console.log('🚴 App Entregas Camaquã - Versão Corrigida com Voz');
 
         // ===== VARIÁVEIS =====
         let entregas = [];
@@ -1089,7 +1138,7 @@
             totalGanhoEl.textContent = `R$ ${totalGanho.toFixed(2)}`;
         }
 
-        // ===== ADICIONAR ENTREGA (CORRIGIDO) =====
+        // ===== ADICIONAR ENTREGA =====
         function adicionarEntrega() {
             const rua = $('rua').value.trim();
             const numero = parseInt($('numero').value);
@@ -1103,8 +1152,6 @@
                 return;
             }
 
-            // Verifica se a rua tem números (ex: "15 de Novembro")
-            // Isso é permitido, não bloqueamos
             entregas.push({ rua, numero, cliente: cliente || '--', obs: obs || '--', valor });
 
             $('rua').value = '';
@@ -1208,10 +1255,9 @@
             mostrarNotificacao('🔄 Ordenado!');
         }
 
-        // ===== GEOCODIFICAÇÃO CORRIGIDA =====
+        // ===== GEOCODIFICAÇÃO =====
         async function geocodificar(endereco) {
             try {
-                // Formata o endereço para busca
                 const enderecoCompleto = `${endereco}, Camaquã, Rio Grande do Sul, Brasil`;
                 const url =
                     `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(enderecoCompleto)}&format=json&limit=1&countrycodes=BR`;
@@ -1233,13 +1279,10 @@
                 const data = await response.json();
 
                 if (data && data.length > 0) {
-                    const resultado = {
+                    return {
                         lat: parseFloat(data[0].lat),
-                        lng: parseFloat(data[0].lon),
-                        display: data[0].display_name
+                        lng: parseFloat(data[0].lon)
                     };
-                    console.log('✅ Encontrado:', resultado);
-                    return resultado;
                 } else {
                     console.warn('⚠️ Endereço não encontrado:', endereco);
                     return null;
@@ -1329,19 +1372,16 @@
                 const coord = await geocodificar(endereco);
                 if (coord) {
                     destinos.push({ ...coord, ...entrega });
-                } else {
-                    mostrarNotificacao(`⚠️ Endereço não encontrado: ${endereco}`);
                 }
             }
 
             if (destinos.length === 0) {
-                mostrarNotificacao('⚠️ Nenhum endereço encontrado! Verifique as ruas.');
+                mostrarNotificacao('⚠️ Nenhum endereço encontrado!');
                 return;
             }
 
             const resultado = otimizarRotaLinear(coordenadasPartida, destinos);
 
-            // Reordenar entregas
             const novasEntregas = [];
             const ordemTexto = [];
             let distanciaAcumulada = 0;
@@ -1478,7 +1518,6 @@
             }
         }
 
-        // ===== MOSTRAR MAPA ATUAL =====
         async function mostrarMapaAtual() {
             if (entregas.length === 0) {
                 mostrarNotificacao('⚠️ Adicione entregas primeiro!');
@@ -1624,7 +1663,7 @@
             mostrarNotificacao('📊 Resumo falado!');
         }
 
-        // ===== COMANDOS DE VOZ =====
+        // ===== COMANDO DE VOZ CORRIGIDO =====
         function iniciarComandoVoz() {
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
                 mostrarNotificacao('⚠️ Comando de voz não disponível');
@@ -1658,28 +1697,124 @@
                 voiceToast.classList.add('active');
                 setTimeout(() => voiceToast.classList.remove('active'), 3000);
 
-                console.log('Comando:', comando);
+                console.log('🎤 Comando:', comando);
 
-                if (comando.includes('adicionar') || comando.includes('add')) {
-                    const partes = comando.replace(/adicionar|add/g, '').trim().split(' ');
-                    let numero = 0;
-                    let rua = [];
-                    for (const p of partes) {
-                        const num = parseInt(p);
-                        if (!isNaN(num) && num > 0) {
-                            numero = num;
-                        } else {
-                            rua.push(p);
+                // ===== ADICIONAR POR VOZ (CORRIGIDO) =====
+                if (comando.includes('adicionar') || comando.includes('add') || comando.includes('mais')) {
+                    let texto = comando.replace(/adicionar|add|mais/g, '').trim();
+
+                    // Lista de ruas com números no nome
+                    const ruasComNumero = [
+                        '15 de novembro', '15 de novembro',
+                        '7 de setembro', 'sete de setembro',
+                        '24 de maio', '24 maio',
+                        '1 de maio', 'primeiro de maio',
+                        '9 de julho', 'nove de julho',
+                        '13 de maio', 'treze de maio',
+                        '21 de abril', 'vinte e um de abril'
+                    ];
+
+                    let rua = '';
+                    let numeroCasa = 0;
+                    let ruaEncontrada = false;
+
+                    // Busca ruas com números no nome
+                    for (const ruaNome of ruasComNumero) {
+                        if (texto.includes(ruaNome)) {
+                            rua = ruaNome;
+                            ruaEncontrada = true;
+                            texto = texto.replace(ruaNome, '').trim();
+                            break;
                         }
                     }
-                    rua = rua.join(' ');
-                    if (rua && numero > 0) {
-                        entregas.push({ rua, numero, cliente: '--', obs: '--', valor: 0 });
-                        salvarDados();
-                        falar(`Adicionado ${rua}, número ${numero}`);
+
+                    if (!ruaEncontrada) {
+                        const palavras = texto.split(' ');
+                        let numeros = [];
+                        let resto = [];
+
+                        for (const palavra of palavras) {
+                            const num = parseInt(palavra);
+                            if (!isNaN(num) && num > 0) {
+                                numeros.push(num);
+                            } else {
+                                resto.push(palavra);
+                            }
+                        }
+
+                        if (numeros.length > 0) {
+                            numeroCasa = numeros[numeros.length - 1];
+                            numeros.pop();
+                            if (numeros.length > 0) {
+                                resto = [...numeros.map(String), ...resto];
+                            }
+                        }
+
+                        rua = resto.join(' ');
+                        if (!rua) rua = texto;
                     } else {
-                        falar('Comando não reconhecido. Diga: adicionar [rua] [número]');
+                        const palavrasResto = texto.split(' ');
+                        for (const palavra of palavrasResto) {
+                            const num = parseInt(palavra);
+                            if (!isNaN(num) && num > 0) {
+                                numeroCasa = num;
+                                break;
+                            }
+                        }
                     }
+
+                    if (numeroCasa === 0) {
+                        const palavras = rua.split(' ');
+                        for (const palavra of palavras) {
+                            const num = parseInt(palavra);
+                            if (!isNaN(num) && num > 0 && num < 10000) {
+                                numeroCasa = num;
+                                rua = rua.replace(String(num), '').trim();
+                                break;
+                            }
+                        }
+                    }
+
+                    rua = rua.replace(/^de\s+|^da\s+|^do\s+/, '').trim();
+                    rua = rua.replace(/\s+/g, ' ').trim();
+                    rua = rua.replace(/\b\w/g, l => l.toUpperCase());
+
+                    if (numeroCasa === 0) {
+                        falar('Qual o número da casa?');
+                        // Aguarda o próximo comando
+                        const handler = function(event2) {
+                            const segundoComando = event2.results[event2.results.length - 1][0].transcript.toLowerCase()
+                                .trim();
+                            const num = parseInt(segundoComando);
+                            if (!isNaN(num) && num > 0) {
+                                numeroCasa = num;
+                                if (rua && numeroCasa > 0) {
+                                    entregas.push({ rua, numero: numeroCasa, cliente: '--', obs: '--', valor: 0 });
+                                    salvarDados();
+                                    falar(`Adicionado ${rua}, número ${numeroCasa}`);
+                                    mostrarNotificacao(`✅ Adicionado: ${rua}, ${numeroCasa}`);
+                                    console.log('📦 Adicionado por voz:', { rua, numero: numeroCasa });
+                                }
+                            } else {
+                                falar('Número não reconhecido');
+                            }
+                            reconhecimentoVoz.onresult = originalHandler;
+                        };
+                        const originalHandler = reconhecimentoVoz.onresult;
+                        reconhecimentoVoz.onresult = handler;
+                        return;
+                    }
+
+                    if (rua && numeroCasa > 0) {
+                        entregas.push({ rua, numero: numeroCasa, cliente: '--', obs: '--', valor: 0 });
+                        salvarDados();
+                        falar(`Adicionado ${rua}, número ${numeroCasa}`);
+                        mostrarNotificacao(`✅ Adicionado: ${rua}, ${numeroCasa}`);
+                        console.log('📦 Adicionado por voz:', { rua, numero: numeroCasa });
+                    } else {
+                        falar('Não entendi o endereço. Tente novamente.');
+                    }
+
                 } else if (comando.includes('concluir') || comando.includes('finalizar')) {
                     if (entregas.length > 0) {
                         concluirEntrega(entregas.length - 1);
@@ -2007,12 +2142,12 @@
                     { rua: 'Rua Bento Gonçalves', numero: 120, cliente: 'João', obs: 'AP 302', valor: 15 },
                     { rua: 'Rua Andrade Neves', numero: 45, cliente: 'Maria', obs: 'Portão azul', valor: 12 },
                     { rua: 'Rua Júlio de Castilhos', numero: 300, cliente: 'Carlos', obs: 'Casa amarela', valor: 18 },
-                    { rua: 'Rua 15 de Novembro', numero: 88, cliente: 'Ana', obs: '3º andar', valor: 10 }
+                    { rua: '15 de Novembro', numero: 88, cliente: 'Ana', obs: '3º andar', valor: 10 }
                 ];
                 salvarDados();
             }
 
-            console.log('✅ App pronto! Versão corrigida');
+            console.log('✅ App pronto! Versão corrigida com voz');
             console.log('📦 Entregas:', entregas.length);
             console.log('🎤 Comandos de voz ativos');
             falar('App pronto para usar!');
