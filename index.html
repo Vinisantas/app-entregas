@@ -433,20 +433,6 @@
             display: block;
         }
 
-        .item-entrega .info .distancia-info {
-            font-size: 10px;
-            color: #ff6b35;
-            font-weight: 600;
-            display: block;
-        }
-
-        .item-entrega .info .ordem-info {
-            font-size: 10px;
-            color: #ff6b35;
-            font-weight: 600;
-            display: block;
-        }
-
         .item-entrega .acoes {
             display: flex;
             gap: 4px;
@@ -909,7 +895,7 @@
         <!-- ===== FORMULÁRIO ===== -->
         <div class="form-card">
             <div class="input-group">
-                <input type="text" id="rua" placeholder="Rua" class="input-rua">
+                <input type="text" id="rua" placeholder="Rua (ex: 15 de Novembro)" class="input-rua">
                 <input type="number" id="numero" placeholder="Nº" class="input-numero">
                 <input type="text" id="cliente" placeholder="Cliente" class="input-cliente">
                 <button class="btn-add" id="btnAdicionar">+</button>
@@ -1009,7 +995,7 @@
     </script>
     <script>
         // ==================== APP COMPLETO ====================
-        console.log('🚴 App Entregas - Com voz e distâncias');
+        console.log('🚴 App Entregas Camaquã - Versão Corrigida');
 
         // ===== VARIÁVEIS =====
         let entregas = [];
@@ -1017,7 +1003,6 @@
         let totalGanho = 0;
         let pontoPartida = 'Rua Bento Gonçalves, Camaquã RS';
         let coordenadasPartida = null;
-        let coordenadasEntregasCache = [];
         let darkMode = false;
         let vozAtiva = true;
         let utterance = null;
@@ -1104,7 +1089,7 @@
             totalGanhoEl.textContent = `R$ ${totalGanho.toFixed(2)}`;
         }
 
-        // ===== ADICIONAR =====
+        // ===== ADICIONAR ENTREGA (CORRIGIDO) =====
         function adicionarEntrega() {
             const rua = $('rua').value.trim();
             const numero = parseInt($('numero').value);
@@ -1114,9 +1099,12 @@
 
             if (!rua || !numero || numero <= 0) {
                 mostrarNotificacao('⚠️ Preencha RUA e NÚMERO!');
+                $('rua').focus();
                 return;
             }
 
+            // Verifica se a rua tem números (ex: "15 de Novembro")
+            // Isso é permitido, não bloqueamos
             entregas.push({ rua, numero, cliente: cliente || '--', obs: obs || '--', valor });
 
             $('rua').value = '';
@@ -1126,7 +1114,7 @@
             $('valor').value = '';
 
             salvarDados();
-            falar(`Adicionado ${rua}, ${numero}`);
+            falar(`Adicionado ${rua}, número ${numero}`);
             $('rua').focus();
             rotaInfo.style.display = 'none';
         }
@@ -1186,7 +1174,6 @@
                                 ${item.cliente && item.cliente !== '--' ? `<span class="cliente-info">👤 ${item.cliente}</span>` : ''}
                                 ${item.obs && item.obs !== '--' ? `<span class="obs-info">📝 ${item.obs}</span>` : ''}
                                 ${item.valor > 0 ? `<span class="valor-info">💰 R$ ${item.valor.toFixed(2)}</span>` : ''}
-                                ${item.distancia !== undefined ? `<span class="distancia-info">📏 ${item.distancia.toFixed(2)} km</span>` : ''}
                             </div>
                             <div class="acoes">
                                 <button class="btn-concluir" data-index="${index}">✅</button>
@@ -1221,23 +1208,46 @@
             mostrarNotificacao('🔄 Ordenado!');
         }
 
-        // ===== GEOCODIFICAÇÃO =====
+        // ===== GEOCODIFICAÇÃO CORRIGIDA =====
         async function geocodificar(endereco) {
             try {
+                // Formata o endereço para busca
+                const enderecoCompleto = `${endereco}, Camaquã, Rio Grande do Sul, Brasil`;
                 const url =
-                    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endereco)}&format=json&limit=1`;
+                    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(enderecoCompleto)}&format=json&limit=1&countrycodes=BR`;
+
+                console.log('🔍 Buscando:', enderecoCompleto);
+
                 const response = await fetch(url, {
-                    headers: { 'User-Agent': 'EntregasApp/1.0' }
+                    headers: {
+                        'User-Agent': 'EntregasApp/1.0',
+                        'Accept-Language': 'pt-BR'
+                    }
                 });
-                const data = await response.json();
-                if (data && data.length > 0) {
-                    return {
-                        lat: parseFloat(data[0].lat),
-                        lng: parseFloat(data[0].lon)
-                    };
+
+                if (!response.ok) {
+                    console.error('Erro na requisição:', response.status);
+                    return null;
                 }
-            } catch (e) { console.error('Erro:', e); }
-            return null;
+
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    const resultado = {
+                        lat: parseFloat(data[0].lat),
+                        lng: parseFloat(data[0].lon),
+                        display: data[0].display_name
+                    };
+                    console.log('✅ Encontrado:', resultado);
+                    return resultado;
+                } else {
+                    console.warn('⚠️ Endereço não encontrado:', endereco);
+                    return null;
+                }
+            } catch (e) {
+                console.error('❌ Erro geocodificação:', e);
+                return null;
+            }
         }
 
         // ===== DISTÂNCIA =====
@@ -1252,50 +1262,7 @@
             return R * c;
         }
 
-        // ===== CALCULAR DISTÂNCIAS POR ENTREGA =====
-        async function calcularDistanciasEntregas() {
-            if (entregas.length === 0) return [];
-
-            if (!coordenadasPartida) {
-                const coord = await geocodificar(pontoPartida);
-                coordenadasPartida = coord || { lat: -30.8531, lng: -51.8125 };
-            }
-
-            const resultados = [];
-            let anterior = coordenadasPartida;
-
-            for (const entrega of entregas) {
-                const coord = await geocodificar(`${entrega.rua}, ${entrega.numero}, Camaquã RS`);
-                if (coord) {
-                    const dist = calcularDistancia(anterior.lat, anterior.lng, coord.lat, coord.lng);
-                    resultados.push({
-                        ...entrega,
-                        distancia: dist,
-                        coordenada: coord
-                    });
-                    anterior = coord;
-                } else {
-                    resultados.push({ ...entrega, distancia: 0, coordenada: null });
-                }
-            }
-
-            // Distância da última entrega até a lanchonete (volta final)
-            if (resultados.length > 0 && resultados[resultados.length - 1].coordenada) {
-                const ultima = resultados[resultados.length - 1].coordenada;
-                const distVolta = calcularDistancia(ultima.lat, ultima.lng, coordenadasPartida.lat, coordenadasPartida.lng);
-                resultados.push({
-                    rua: '🏁 VOLTA PARA LANCHONETE',
-                    numero: '',
-                    distancia: distVolta,
-                    coordenada: coordenadasPartida,
-                    isVolta: true
-                });
-            }
-
-            return resultados;
-        }
-
-        // ===== OTIMIZAR ROTA LINEAR COM VOLTA FINAL =====
+        // ===== OTIMIZAR ROTA =====
         function otimizarRotaLinear(pontoPartida, destinos) {
             if (destinos.length === 0) return { ordem: [], distanciaTotal: 0, pontos: [pontoPartida] };
             if (destinos.length === 1) {
@@ -1357,17 +1324,18 @@
             }
 
             const destinos = [];
-            const destinosComDistancia = [];
             for (const entrega of entregas) {
-                const coord = await geocodificar(`${entrega.rua}, ${entrega.numero}, Camaquã RS`);
+                const endereco = `${entrega.rua}, ${entrega.numero}`;
+                const coord = await geocodificar(endereco);
                 if (coord) {
                     destinos.push({ ...coord, ...entrega });
-                    destinosComDistancia.push({ ...coord, ...entrega });
+                } else {
+                    mostrarNotificacao(`⚠️ Endereço não encontrado: ${endereco}`);
                 }
             }
 
             if (destinos.length === 0) {
-                mostrarNotificacao('⚠️ Nenhum endereço encontrado!');
+                mostrarNotificacao('⚠️ Nenhum endereço encontrado! Verifique as ruas.');
                 return;
             }
 
@@ -1397,7 +1365,6 @@
                 }
             });
 
-            // Distância da volta final
             if (resultado.ordem.length > 0) {
                 const ultimoIdx = resultado.ordem[resultado.ordem.length - 1];
                 const ultimoCoord = destinos[ultimoIdx];
@@ -1412,7 +1379,6 @@
             entregas = novasEntregas;
             salvarDados();
 
-            // Mostrar informações
             rotaInfo.style.display = 'block';
             rotaPartida.textContent = pontoPartida.substring(0, 25) + '...';
             rotaEntregas.textContent = resultado.ordem.length;
@@ -1427,9 +1393,8 @@
 
             await mostrarRotaOtimizada(resultado.pontos);
 
-            // Falar resumo com distâncias
             falar(
-                `Rota otimizada com ${resultado.ordem.length} entregas. Distância total de ${resultado.distanciaTotal.toFixed(1)} quilômetros. Volta à lanchonete no final.`
+                `Rota otimizada com ${resultado.ordem.length} entregas. Distância total de ${resultado.distanciaTotal.toFixed(1)} quilômetros.`
                 );
 
             mostrarNotificacao('✅ Rota otimizada!');
@@ -1483,7 +1448,6 @@
                     const entrega = entregas[entregaIndex - 1];
                     if (entrega) {
                         const cor = entregaIndex % 2 === 0 ? '#4CAF50' : '#ff6b35';
-                        const dist = entrega.distancia ? `📏 ${entrega.distancia.toFixed(2)} km` : '';
                         L.marker([p.lat, p.lng], {
                             icon: L.divIcon({
                                 className: 'custom-div-icon',
@@ -1493,7 +1457,7 @@
                             })
                         }).addTo(map)
                             .bindPopup(
-                                `<b>#${entregaIndex}</b><br>📦 ${entrega.rua}, ${entrega.numero}${entrega.cliente && entrega.cliente !== '--' ? `<br>👤 ${entrega.cliente}` : ''}${entrega.valor > 0 ? `<br>💰 R$ ${entrega.valor.toFixed(2)}` : ''}${dist ? `<br>📏 ${dist}` : ''}`
+                                `<b>#${entregaIndex}</b><br>📦 ${entrega.rua}, ${entrega.numero}${entrega.cliente && entrega.cliente !== '--' ? `<br>👤 ${entrega.cliente}` : ''}${entrega.valor > 0 ? `<br>💰 R$ ${entrega.valor.toFixed(2)}` : ''}`
                                 );
                         entregaIndex++;
                     }
@@ -1514,6 +1478,43 @@
             }
         }
 
+        // ===== MOSTRAR MAPA ATUAL =====
+        async function mostrarMapaAtual() {
+            if (entregas.length === 0) {
+                mostrarNotificacao('⚠️ Adicione entregas primeiro!');
+                return;
+            }
+
+            if (rotaInfo.style.display === 'block') {
+                mapaContainer.style.display = 'block';
+                return;
+            }
+
+            mostrarNotificacao('⏳ Carregando mapa...');
+            if (!coordenadasPartida) {
+                const coord = await geocodificar(pontoPartida);
+                coordenadasPartida = coord || { lat: -30.8531, lng: -51.8125 };
+            }
+
+            const destinos = [];
+            for (const entrega of entregas) {
+                const endereco = `${entrega.rua}, ${entrega.numero}`;
+                const coord = await geocodificar(endereco);
+                if (coord) {
+                    destinos.push({ ...coord, ...entrega });
+                }
+            }
+
+            if (destinos.length === 0) {
+                mostrarNotificacao('⚠️ Nenhum endereço encontrado!');
+                return;
+            }
+
+            const resultado = otimizarRotaLinear(coordenadasPartida, destinos);
+            await mostrarRotaOtimizada(resultado.pontos);
+            mostrarNotificacao('🗺️ Mapa carregado!');
+        }
+
         // ===== NAVEGAÇÃO POR VOZ =====
         function navegarPorVoz() {
             if (entregas.length === 0) {
@@ -1527,11 +1528,8 @@
                 setTimeout(() => {
                     const numero = index + 1;
                     const total = entregas.length;
-                    const dist = entrega.distancia ? `${entrega.distancia.toFixed(1)} km` : '';
-                    let msg =
-                        `Entrega ${numero} de ${total}: ${entrega.rua}, número ${entrega.numero}`;
+                    let msg = `Entrega ${numero} de ${total}: ${entrega.rua}, número ${entrega.numero}`;
                     if (entrega.cliente && entrega.cliente !== '--') msg += `, cliente ${entrega.cliente}`;
-                    if (dist) msg += `, distância ${dist}`;
                     if (entrega.obs && entrega.obs !== '--') msg += `, observação: ${entrega.obs}`;
                     falar(msg);
 
@@ -1577,7 +1575,8 @@
                 }
 
                 const entrega = entregas[entregaAtual];
-                const coord = await geocodificar(`${entrega.rua}, ${entrega.numero}, Camaquã RS`);
+                const endereco = `${entrega.rua}, ${entrega.numero}`;
+                const coord = await geocodificar(endereco);
 
                 if (coord) {
                     const dist = calcularDistancia(
@@ -1585,7 +1584,6 @@
                         coord.lat, coord.lng
                     );
 
-                    // Se estiver a menos de 100 metros
                     if (dist < 0.1) {
                         falar(`Você chegou em ${entrega.rua}, número ${entrega.numero}`);
                         entregaAtual++;
@@ -1596,13 +1594,11 @@
                             monitorWatchId = null;
                         }
                     } else if (dist < 0.5) {
-                        // Aviso de aproximação a 500 metros
                         falar(`Aproximando de ${entrega.rua}, número ${entrega.numero}, ${(dist * 1000).toFixed(0)} metros`);
                     }
                 }
             }, (error) => {
                 console.error('Erro GPS:', error);
-                mostrarNotificacao('⚠️ Erro no GPS');
             }, {
                 enableHighAccuracy: true,
                 distanceFilter: 30
@@ -1623,15 +1619,6 @@
             msg += `${totalHoje} entregas concluídas`;
             if (valorHoje > 0) msg += `, total de R$ ${valorHoje.toFixed(2)}`;
             if (entregas.length > 0) msg += `, ${entregas.length} entregas pendentes`;
-
-            // Calcular distância total do dia se tiver dados
-            if (entregas.length > 0 || historico.length > 0) {
-                msg += `. `;
-                if (entregas.length > 0) {
-                    const distTotal = entregas.reduce((s, e) => s + (e.distancia || 0), 0);
-                    if (distTotal > 0) msg += `Distância pendente: ${distTotal.toFixed(1)} km. `;
-                }
-            }
 
             falar(msg);
             mostrarNotificacao('📊 Resumo falado!');
@@ -1673,7 +1660,6 @@
 
                 console.log('Comando:', comando);
 
-                // Processar comandos
                 if (comando.includes('adicionar') || comando.includes('add')) {
                     const partes = comando.replace(/adicionar|add/g, '').trim().split(' ');
                     let numero = 0;
@@ -1734,15 +1720,10 @@
                 console.error('Erro voz:', event.error);
                 if (event.error === 'not-allowed') {
                     mostrarNotificacao('⚠️ Permissão de microfone negada');
-                } else if (event.error === 'no-speech') {
-                    // Não faz nada, continua ouvindo
-                } else {
-                    mostrarNotificacao('⚠️ Erro no comando de voz');
                 }
             };
 
             reconhecimentoVoz.onend = function() {
-                // Se não foi parado manualmente, reinicia
                 if (reconhecimentoVoz) {
                     try {
                         reconhecimentoVoz.start();
@@ -1769,7 +1750,7 @@
             msg += `═`.repeat(30) + '\n\n';
             msg += `🏠 *Lanchonete:* ${pontoPartida.substring(0, 40)}\n`;
             msg += `📦 *Entregas:* ${entregas.length}\n\n`;
-            msg += `📋 *Rota otimizada com distâncias:*\n`;
+            msg += `📋 *Rota otimizada:*\n`;
 
             let totalDistancia = 0;
             entregas.forEach((e, i) => {
@@ -1806,12 +1787,6 @@
                     window.speechSynthesis.speak(utterance);
                 }
             } catch (e) { console.error('Erro voz:', e); }
-        }
-
-        function alternarVoz() {
-            vozAtiva = !vozAtiva;
-            mostrarNotificacao(vozAtiva ? '🔊 Voz ativada' : '🔇 Voz desativada');
-            if (vozAtiva) falar('Voz ativada');
         }
 
         // ===== DARK MODE =====
@@ -1913,42 +1888,6 @@
             }, 3000);
         }
 
-        // ===== MOSTRAR MAPA ATUAL =====
-        async function mostrarMapaAtual() {
-            if (entregas.length === 0) {
-                mostrarNotificacao('⚠️ Adicione entregas primeiro!');
-                return;
-            }
-
-            if (rotaInfo.style.display === 'block') {
-                mapaContainer.style.display = 'block';
-                return;
-            }
-
-            mostrarNotificacao('⏳ Carregando mapa...');
-            if (!coordenadasPartida) {
-                const coord = await geocodificar(pontoPartida);
-                coordenadasPartida = coord || { lat: -30.8531, lng: -51.8125 };
-            }
-
-            const destinos = [];
-            for (const entrega of entregas) {
-                const coord = await geocodificar(`${entrega.rua}, ${entrega.numero}, Camaquã RS`);
-                if (coord) {
-                    destinos.push({ ...coord, ...entrega });
-                }
-            }
-
-            if (destinos.length === 0) {
-                mostrarNotificacao('⚠️ Nenhum endereço encontrado!');
-                return;
-            }
-
-            const resultado = otimizarRotaLinear(coordenadasPartida, destinos);
-            await mostrarRotaOtimizada(resultado.pontos);
-            mostrarNotificacao('🗺️ Mapa carregado!');
-        }
-
         // ===== EVENTOS =====
         document.addEventListener('DOMContentLoaded', function() {
             carregarDados();
@@ -1957,7 +1896,12 @@
             // Adicionar
             $('btnAdicionar').onclick = adicionarEntrega;
             document.querySelectorAll('.input-rua, .input-numero, .input-cliente').forEach(input => {
-                input.onkeypress = function(e) { if (e.key === 'Enter') adicionarEntrega(); };
+                input.onkeypress = function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        adicionarEntrega();
+                    }
+                };
             });
 
             // Editar ponto
@@ -2057,45 +2001,37 @@
                 };
             });
 
-            // Fechar comandos de voz clicando fora
-            document.addEventListener('click', function(e) {
-                if (comandosVoz.classList.contains('active')) {
-                    if (!comandosVoz.contains(e.target) && e.target.id !== 'btnComandoVoz') {
-                        // Não fecha automaticamente
-                    }
-                }
-            });
-
-            // Exemplos
+            // Exemplos com ruas de Camaquã
             if (entregas.length === 0 && historico.length === 0) {
                 entregas = [
-                    { rua: 'Bento Gonçalves', numero: 120, cliente: 'João', obs: 'AP 302', valor: 15 },
-                    { rua: 'Andrade Neves', numero: 45, cliente: 'Maria', obs: 'Portão azul', valor: 12 },
-                    { rua: 'Júlio de Castilhos', numero: 300, cliente: 'Carlos', obs: 'Casa amarela', valor: 18 },
-                    { rua: 'Tiradentes', numero: 88, cliente: 'Ana', obs: '3º andar', valor: 10 }
+                    { rua: 'Rua Bento Gonçalves', numero: 120, cliente: 'João', obs: 'AP 302', valor: 15 },
+                    { rua: 'Rua Andrade Neves', numero: 45, cliente: 'Maria', obs: 'Portão azul', valor: 12 },
+                    { rua: 'Rua Júlio de Castilhos', numero: 300, cliente: 'Carlos', obs: 'Casa amarela', valor: 18 },
+                    { rua: 'Rua 15 de Novembro', numero: 88, cliente: 'Ana', obs: '3º andar', valor: 10 }
                 ];
                 salvarDados();
             }
 
-            console.log('✅ App pronto!');
-            console.log('📦 Modo: Rota linear com volta final');
+            console.log('✅ App pronto! Versão corrigida');
+            console.log('📦 Entregas:', entregas.length);
             console.log('🎤 Comandos de voz ativos');
-            falar('App pronto para usar. Diga ajuda para ver os comandos de voz');
+            falar('App pronto para usar!');
         });
     </script>
-    <!-- ===== REGISTRO DO SERVICE WORKER (SEPARADO) ===== -->
-<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('sw.js')
-                .then(function(registration) {
-                    console.log('✅ Service Worker registrado com sucesso!');
-                })
-                .catch(function(error) {
-                    console.log('❌ Falha ao registrar Service Worker:', error);
-                });
-        });
-    }
-</script>
+
+    <!-- ===== REGISTRO DO SERVICE WORKER ===== -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('✅ Service Worker registrado!');
+                    })
+                    .catch(function(error) {
+                        console.log('❌ Service Worker erro:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
