@@ -13,28 +13,43 @@
     
     "icons": [
         {
-            "src": "https://cdn.jsdelivr.net/npm/@material-icons/svg@1.0.35/svg/delivery_dining/filled.svg",
+            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-192.png",
             "sizes": "192x192",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "https://cdn.jsdelivr.net/npm/@material-icons/svg@1.0.35/svg/delivery_dining/filled.svg",
+            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-512.png",
             "sizes": "512x512",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "https://cdn.jsdelivr.net/npm/@material-icons/svg@1.0.35/svg/delivery_dining/filled.svg",
+            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-192.png",
             "sizes": "192x192",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "maskable"
         },
         {
-            "src": "https://cdn.jsdelivr.net/npm/@material-icons/svg@1.0.35/svg/delivery_dining/filled.svg",
+            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-512.png",
             "sizes": "512x512",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "maskable"
+        }
+    ],
+    
+    "shortcuts": [
+        {
+            "name": "Nova Entrega",
+            "short_name": "Nova",
+            "url": "index.html?action=add",
+            "icons": [
+                {
+                    "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
         }
     ]
 }
