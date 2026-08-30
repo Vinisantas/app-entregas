@@ -13,25 +13,25 @@
     
     "icons": [
         {
-            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-192.png",
+            "src": "icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-512.png",
+            "src": "icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-192.png",
+            "src": "icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "maskable"
         },
         {
-            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-512.png",
+            "src": "icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable"
@@ -42,14 +42,42 @@
         {
             "name": "Nova Entrega",
             "short_name": "Nova",
+            "description": "Adicionar uma nova entrega",
             "url": "index.html?action=add",
             "icons": [
                 {
-                    "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-192.png",
+                    "src": "icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "Ver Histórico",
+            "short_name": "Histórico",
+            "description": "Ver histórico de entregas",
+            "url": "index.html?action=history",
+            "icons": [
+                {
+                    "src": "icon-192.png",
                     "sizes": "192x192",
                     "type": "image/png"
                 }
             ]
         }
-    ]
+    ],
+    
+    "screenshots": [
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "platform": "narrow",
+            "label": "Tela principal do app"
+        }
+    ],
+    
+    "prefer_related_applications": false,
+    "related_applications": [],
+    "iarc_rating_id": ""
 }
