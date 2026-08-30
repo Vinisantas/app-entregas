@@ -2,299 +2,1051 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🚴 Entregas Camaquã - Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🚴 Entregas Camaquã</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        /* ==================== CSS COMPLETO ==================== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            background: #0a0a0a; 
-            color: #e0e0e0; 
-            padding: 10px; 
+        /* ========== ESTILO COMPLETO ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
             min-height: 100vh;
-            transition: background 0.3s;
+            min-height: 100dvh;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
-        
-        /* Modo Noturno Ultra Escuro */
-        body.dark-mode {
-            background: #050505;
+
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 12px 16px 20px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: #0d0d0d;
+            display: flex;
+            flex-direction: column;
         }
-        
-        body.dark-mode .container { background: #0a0a0a; }
-        body.dark-mode .stat-card { background: #111; border-color: #1a1a1a; }
-        body.dark-mode .form-group { background: #111; }
-        body.dark-mode .lista-container { background: #111; }
-        body.dark-mode .item-entrega { background: #1a1a1a; }
-        body.dark-mode .modal-content { background: #0a0a0a; }
-        body.dark-mode .ponto-partida { background: #111; border-color: #ff6b35; }
-        body.dark-mode .rota-info { background: #111; border-color: #1a1a1a; }
-        
-        .container { max-width: 500px; margin: 0 auto; background: #0d0d0d; padding: 10px; border-radius: 16px; }
-        
-        /* Header */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #1a1a1a; }
-        header h1 { font-size: 18px; color: #ff6b35; }
-        .status { font-size: 9px; padding: 3px 8px; border-radius: 20px; background: #1a1a1a; }
-        .status.online { background: #1b5e20; color: #81c784; }
-        .status.offline { background: #4a1a1a; color: #ef9a9a; }
-        
-        /* Stats */
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 8px; }
-        .stat-card { background: #111; padding: 6px 2px; border-radius: 8px; text-align: center; border: 1px solid #1a1a1a; }
-        .stat-number { display: block; font-size: 18px; font-weight: bold; color: #ff6b35; }
-        .stat-label { font-size: 8px; color: #666; text-transform: uppercase; }
-        
-        /* Ponto de Partida */
-        .ponto-partida { background: #111; padding: 8px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #ff6b35; }
-        .ponto-partida label { font-size: 10px; color: #ff6b35; display: block; margin-bottom: 3px; }
-        .ponto-partida .input-row { display: flex; gap: 4px; }
-        .ponto-partida input { flex: 1; padding: 6px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 4px; color: #fff; font-size: 11px; }
-        .ponto-partida .btn-set { padding: 6px 12px; background: #ff6b35; border: none; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; font-size: 10px; }
-        
-        /* Total Ganho */
-        .total-ganho { background: #111; padding: 6px; border-radius: 8px; text-align: center; margin-bottom: 8px; border: 1px solid #1a1a1a; }
-        .total-ganho span { font-size: 18px; font-weight: bold; color: #ffd700; }
-        
-        /* Formulário */
-        .form-group { background: #111; padding: 8px; border-radius: 10px; margin-bottom: 8px; }
-        .input-row { display: flex; gap: 4px; margin-bottom: 4px; flex-wrap: wrap; }
-        .input-rua { flex: 2; padding: 6px 8px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 4px; color: #fff; font-size: 12px; min-width: 80px; }
-        .input-numero { flex: 1; padding: 6px 8px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 4px; color: #fff; font-size: 12px; min-width: 50px; }
-        .input-cliente { flex: 1; padding: 6px 8px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 4px; color: #fff; font-size: 12px; min-width: 60px; }
-        .input-valor { width: 60px; padding: 6px 8px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 4px; color: #fff; font-size: 12px; }
-        .btn-add { padding: 6px 14px; background: #4CAF50; border: none; border-radius: 4px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; }
-        
-        /* Botões */
-        .btn-group { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 4px; }
-        .btn-group button { flex: 1; padding: 6px 2px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 9px; min-width: 35px; transition: 0.2s; }
-        .btn-group button:hover { opacity: 0.8; transform: scale(0.97); }
-        .btn-secondary { background: #2196F3; color: white; }
-        .btn-primary { background: #ff5722; color: white; }
-        .btn-success { background: #4CAF50; color: white; }
-        .btn-info { background: #9C27B0; color: white; }
-        .btn-danger { background: #f44336; color: white; }
-        .btn-warning { background: #FF9800; color: white; }
-        .btn-gold { background: #FFD700; color: #000; }
-        .btn-voice { background: #E91E63; color: white; }
-        .btn-whats { background: #25D366; color: white; }
-        .btn-dark { background: #333; color: white; }
-        
-        /* Lista */
-        .lista-container { background: #111; border-radius: 10px; padding: 8px; min-height: 150px; }
-        .lista-container h2 { font-size: 12px; margin-bottom: 6px; color: #888; }
-        .lista-entregas { list-style: none; padding: 0; max-height: 250px; overflow-y: auto; }
-        .item-entrega { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: #1a1a1a; margin-bottom: 2px; border-radius: 4px; border-left: 3px solid #ff6b35; }
-        .item-entrega .info .rua { font-weight: bold; font-size: 11px; color: #fff; }
-        .item-entrega .info .numero { font-size: 10px; color: #888; }
-        .item-entrega .info .cliente-info { font-size: 9px; color: #66bb6a; display: block; }
-        .item-entrega .botoes { display: flex; gap: 3px; }
-        .item-entrega .botoes button { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 3px; }
-        .btn-delete { color: #f44336; }
+
+        /* HEADER */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0 12px;
+            border-bottom: 1px solid #1a1a1a;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+
+        .app-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-header .logo .icon {
+            font-size: 28px;
+            background: #ff6b35;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .app-header h1 span {
+            color: #ff6b35;
+        }
+
+        .status-badge {
+            font-size: 10px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: #1a1a1a;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-badge.online {
+            background: #0d2818;
+            color: #4CAF50;
+        }
+
+        .status-badge.online::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4CAF50;
+            display: inline-block;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+        }
+
+        .status-badge.offline {
+            background: #2a0a0a;
+            color: #ef5350;
+        }
+
+        .status-badge.listening {
+            background: #4a148c;
+            color: #ce93d8;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* CARDS */
+        .card {
+            background: #151515;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border: 1px solid #1f1f1f;
+        }
+
+        /* STATS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .stat-item {
+            background: #151515;
+            border-radius: 14px;
+            padding: 12px 6px;
+            text-align: center;
+            border: 1px solid #1f1f1f;
+        }
+
+        .stat-item .number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff6b35;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .stat-item .label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        /* PONTO DE PARTIDA */
+        .ponto-card {
+            background: #151515;
+            border-radius: 16px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            border: 1px solid #ff6b3533;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ponto-card .icon {
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .ponto-card .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ponto-card .info .label {
+            font-size: 10px;
+            color: #ff6b35;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .ponto-card .info .endereco {
+            font-size: 13px;
+            color: #fff;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ponto-card .btn-editar {
+            background: #2a2a2a;
+            border: none;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .ponto-card .btn-editar:active {
+            transform: scale(0.95);
+        }
+
+        /* TOTAL GANHO */
+        .total-card {
+            background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border: 1px solid #ffd70033;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-card .label {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .total-card .value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        /* FORMULÁRIO */
+        .form-card {
+            background: #151515;
+            border-radius: 16px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .input-group input {
+            background: #1f1f1f;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s;
+            min-width: 0;
+        }
+
+        .input-group input:focus {
+            border-color: #ff6b35;
+        }
+
+        .input-group input::placeholder {
+            color: #555;
+        }
+
+        .input-group .input-rua { flex: 2; }
+        .input-group .input-numero { flex: 0.7; width: 70px; }
+        .input-group .input-cliente { flex: 1; }
+        .input-group .input-valor { flex: 0.6; width: 60px; }
+
+        .input-group .btn-add {
+            background: #4CAF50;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+            padding: 0 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .input-group .btn-add:active {
+            transform: scale(0.95);
+        }
+
+        /* BOTÕES */
+        .btn-group {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            padding: 10px 4px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+
+        .btn-group .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary { background: #ff6b35; color: #fff; }
+        .btn-secondary { background: #1a1a1a; color: #fff; border: 1px solid #2a2a2a; }
+        .btn-success { background: #2e7d32; color: #fff; }
+        .btn-danger { background: #c62828; color: #fff; }
+        .btn-info { background: #1a237e; color: #fff; }
+        .btn-gold { background: #f9a825; color: #000; }
+        .btn-whats { background: #075e54; color: #fff; }
+        .btn-voice { background: #880e4f; color: #fff; }
+        .btn-dark { background: #1f1f1f; color: #fff; border: 1px solid #2a2a2a; }
+        .btn-purple { background: #4a148c; color: #fff; }
+        .btn-mic { background: #c62828; color: #fff; animation: pulse 1.5s infinite; }
+
+        /* LISTA */
+        .lista-card {
+            background: #151515;
+            border-radius: 16px;
+            padding: 12px 14px;
+            flex: 1;
+            min-height: 200px;
+        }
+
+        .lista-card .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .lista-card .header h2 {
+            font-size: 13px;
+            color: #888;
+            font-weight: 600;
+        }
+
+        .lista-card .header .count {
+            background: #ff6b35;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .lista-entregas {
+            list-style: none;
+            padding: 0;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .item-entrega {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: #1a1a1a;
+            margin-bottom: 4px;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b35;
+            transition: all 0.2s;
+        }
+
+        .item-entrega:active {
+            transform: scale(0.98);
+            background: #1f1f1f;
+        }
+
+        .item-entrega .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-entrega .info .rua {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .item-entrega .info .numero {
+            font-size: 11px;
+            color: #888;
+            margin-left: 4px;
+        }
+
+        .item-entrega .info .cliente-info {
+            font-size: 10px;
+            color: #66bb6a;
+            display: block;
+        }
+
+        .item-entrega .info .obs-info {
+            font-size: 10px;
+            color: #ffd700;
+            display: block;
+        }
+
+        .item-entrega .info .valor-info {
+            font-size: 11px;
+            color: #4CAF50;
+            font-weight: 600;
+            display: block;
+        }
+
+        .item-entrega .info .distancia-info {
+            font-size: 10px;
+            color: #ff6b35;
+            font-weight: 600;
+            display: block;
+        }
+
+        .item-entrega .info .ordem-info {
+            font-size: 10px;
+            color: #ff6b35;
+            font-weight: 600;
+            display: block;
+        }
+
+        .item-entrega .acoes {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .item-entrega .acoes button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            padding: 4px 6px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .item-entrega .acoes button:active {
+            transform: scale(0.85);
+        }
+
         .btn-concluir { color: #4CAF50; }
-        
-        /* Rota Info */
-        .rota-info { background: #111; padding: 8px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #1a1a1a; display: none; }
-        .rota-info .info-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; border-bottom: 1px solid #1a1a1a; }
-        .rota-info .info-row:last-child { border-bottom: none; }
-        .rota-info .label { color: #666; }
-        .rota-info .value { color: #ffd700; font-weight: bold; }
-        .rota-info .value.entregas { color: #4CAF50; }
-        .rota-info .value.voltas { color: #ff6b35; }
-        
-        /* Mapa */
-        #mapaContainer { margin-top: 8px; background: #111; border-radius: 10px; overflow: hidden; padding: 8px; display: none; }
-        #mapa { border-radius: 6px; min-height: 250px; width: 100%; }
-        .btn-close { margin-top: 4px; padding: 6px; width: 100%; background: #222; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-size: 11px; }
-        
-        /* Modal Histórico */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; padding: 10px; overflow-y: auto; }
-        .modal-content { background: #0a0a0a; border-radius: 12px; max-width: 500px; margin: 10px auto; padding: 12px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #1a1a1a; }
-        .modal-header h2 { font-size: 14px; color: #fff; }
-        .modal-close { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; }
-        .filtros { display: flex; gap: 3px; margin-bottom: 8px; flex-wrap: wrap; }
-        .filtro-btn { padding: 3px 10px; background: #1a1a1a; border: none; border-radius: 16px; color: #666; cursor: pointer; font-size: 10px; }
-        .filtro-btn.active { background: #ff6b35; color: #fff; }
-        .resumo-historico { background: #111; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-size: 11px; color: #888; line-height: 1.6; }
-        .lista-historico { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; }
-        .item-historico { display: flex; justify-content: space-between; padding: 5px 8px; background: #111; margin-bottom: 2px; border-radius: 4px; font-size: 11px; border-left: 2px solid #4CAF50; }
-        .item-historico .data-hora { color: #666; font-size: 9px; }
-        .btn-exportar, .btn-backup { width: 100%; padding: 6px; border: none; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; margin-top: 3px; font-size: 11px; }
-        .btn-exportar { background: #4CAF50; }
-        .btn-backup { background: #2196F3; }
-        
-        /* WhatsApp e Voice */
-        .btn-group-extra { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 4px; }
-        .btn-group-extra button { flex: 1; padding: 6px 2px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 9px; min-width: 35px; transition: 0.2s; }
-        .btn-group-extra button:hover { opacity: 0.8; }
-        
-        ::-webkit-scrollbar { width: 3px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        
-        .empty-state { text-align: center; color: #444; padding: 15px; font-size: 12px; }
-        .empty-state .emoji { font-size: 30px; display: block; margin-bottom: 4px; }
-        
-        /* Responsivo */
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: repeat(3, 1fr); }
-            .stat-number { font-size: 16px; }
-            .btn-group button { font-size: 8px; padding: 5px 1px; }
-            .btn-group-extra button { font-size: 8px; padding: 5px 1px; }
-            .container { padding: 6px; }
+        .btn-delete { color: #ef5350; }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 10px;
+            color: #555;
         }
-        
-        /* Toast de voz */
+
+        .empty-state .emoji {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .empty-state .texto {
+            font-size: 13px;
+        }
+
+        /* ROTA INFO */
+        .rota-card {
+            background: #151515;
+            border-radius: 16px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            border: 1px solid #ff6b3533;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .rota-card .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            font-size: 12px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .rota-card .row:last-child {
+            border-bottom: none;
+        }
+
+        .rota-card .label {
+            color: #666;
+        }
+        .rota-card .value {
+            color: #ffd700;
+            font-weight: 600;
+        }
+        .rota-card .value.entregas { color: #4CAF50; }
+        .rota-card .value.volta { color: #ff6b35; }
+
+        /* MAPA */
+        #mapaContainer {
+            margin-top: 8px;
+            border-radius: 16px;
+            overflow: hidden;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        #mapa {
+            height: 280px;
+            width: 100%;
+            background: #0a0a0a;
+        }
+
+        .btn-fechar-mapa {
+            width: 100%;
+            padding: 10px;
+            background: #1f1f1f;
+            border: none;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .btn-fechar-mapa:active {
+            background: #2a2a2a;
+        }
+
+        /* VOZ TOAST */
         .voice-toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             background: #1a1a1a;
             color: #fff;
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 12px 24px;
+            border-radius: 16px;
             border: 1px solid #ff6b35;
             font-size: 14px;
             z-index: 9999;
             display: none;
             max-width: 90%;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
+            font-weight: 500;
         }
+
         .voice-toast.active {
             display: block;
-            animation: fadeInUp 0.3s ease;
+            animation: slideUp 0.3s ease;
         }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .voice-toast.mic-active {
+            border-color: #c62828;
+            background: #1a0a0a;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 2000;
+            padding: 16px;
+            overflow-y: auto;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #121212;
+            border-radius: 20px;
+            max-width: 430px;
+            margin: 10px auto;
+            padding: 16px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .modal-header h2 {
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .modal-close {
+            background: #1f1f1f;
+            border: none;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:active {
+            transform: scale(0.9);
+        }
+
+        .filtros {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filtro-btn {
+            padding: 4px 14px;
+            background: #1a1a1a;
+            border: none;
+            border-radius: 20px;
+            color: #666;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .filtro-btn.active {
+            background: #ff6b35;
+            color: #fff;
+        }
+
+        .resumo-historico {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #888;
+            line-height: 1.8;
+        }
+
+        .lista-historico {
+            list-style: none;
+            padding: 0;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .item-historico {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background: #1a1a1a;
+            margin-bottom: 2px;
+            border-radius: 8px;
+            font-size: 12px;
+            border-left: 3px solid #4CAF50;
+        }
+
+        .item-historico .data-hora {
+            color: #666;
+            font-size: 10px;
+        }
+
+        .btn-exportar,
+        .btn-backup {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 4px;
+            font-size: 13px;
+        }
+
+        .btn-exportar {
+            background: #2e7d32;
+        }
+        .btn-backup {
+            background: #0d47a1;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 3px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 380px) {
+            .app-container {
+                padding: 8px 10px 16px;
+            }
+            .stat-item .number {
+                font-size: 20px;
+            }
+            .input-group input {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+            .btn-group .btn {
+                font-size: 8px;
+                padding: 8px 2px;
+            }
+            .app-header h1 {
+                font-size: 15px;
+            }
+        }
+
+        @media (min-width: 431px) {
+            .app-container {
+                padding: 16px 24px 24px;
+            }
+        }
+
+        /* DARK MODE */
+        body.dark-mode {
+            background: #050505;
+        }
+        body.dark-mode .app-container {
+            background: #070707;
+        }
+        body.dark-mode .stat-item {
+            background: #0d0d0d;
+            border-color: #151515;
+        }
+        body.dark-mode .card {
+            background: #0d0d0d;
+            border-color: #151515;
+        }
+        body.dark-mode .form-card {
+            background: #0d0d0d;
+        }
+        body.dark-mode .lista-card {
+            background: #0d0d0d;
+        }
+        body.dark-mode .item-entrega {
+            background: #121212;
+        }
+        body.dark-mode .ponto-card {
+            background: #0d0d0d;
+        }
+        body.dark-mode .rota-card {
+            background: #0d0d0d;
+        }
+        body.dark-mode .total-card {
+            background: #0d0d0d;
+        }
+        body.dark-mode .modal-content {
+            background: #0a0a0a;
+        }
+        body.dark-mode .input-group input {
+            background: #151515;
+            border-color: #1f1f1f;
+        }
+        body.dark-mode .btn-secondary {
+            background: #151515;
+        }
+        body.dark-mode .btn-dark {
+            background: #151515;
+        }
+
+        /* COMANDOS DE VOZ - LISTA FLUTUANTE */
+        .comandos-voz {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            border: 1px solid #ff6b35;
+            border-radius: 16px;
+            padding: 12px 16px;
+            z-index: 9998;
+            display: none;
+            max-width: 90%;
+            min-width: 280px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.9);
+        }
+
+        .comandos-voz.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        .comandos-voz .titulo {
+            font-size: 12px;
+            color: #ff6b35;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .comandos-voz .comando {
+            font-size: 11px;
+            color: #aaa;
+            padding: 2px 0;
+            border-bottom: 1px solid #1f1f1f;
+        }
+
+        .comandos-voz .comando:last-child {
+            border-bottom: none;
+        }
+
+        .comandos-voz .comando strong {
+            color: #fff;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🚴 Entregas Camaquã</h1>
-            <span class="status online" id="status">🟢 Online</span>
+
+    <div class="app-container">
+        <!-- ===== HEADER ===== -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="icon">🚴</div>
+                <h1>Entregas</h1>
+            </div>
+            <div class="status-badge online" id="status">Online</div>
         </header>
 
-        <!-- Ponto de Partida (Lanchonete) -->
-        <div class="ponto-partida">
-            <label>🏠 Ponto de Partida (Lanchonete)</label>
-            <div class="input-row">
-                <input type="text" id="pontoPartida" placeholder="Ex: Rua Bento Gonçalves, 123" value="Rua Bento Gonçalves, Camaquã RS">
-                <button id="btnSalvarPonto" class="btn-set">Salvar</button>
+        <!-- ===== STATS ===== -->
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="number" id="totalHoje">0</span>
+                <span class="label">Hoje</span>
+            </div>
+            <div class="stat-item">
+                <span class="number" id="totalSemana">0</span>
+                <span class="label">Semana</span>
+            </div>
+            <div class="stat-item">
+                <span class="number" id="totalGeral">0</span>
+                <span class="label">Total</span>
             </div>
         </div>
 
-        <div class="total-ganho">
-            💰 Total ganho: <span id="totalGanho">R$ 0,00</span>
+        <!-- ===== TOTAL GANHO ===== -->
+        <div class="total-card">
+            <span class="label">💰 Total ganho</span>
+            <span class="value" id="totalGanho">R$ 0,00</span>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card"><span class="stat-number" id="totalHoje">0</span><span class="stat-label">Hoje</span></div>
-            <div class="stat-card"><span class="stat-number" id="totalSemana">0</span><span class="stat-label">Semana</span></div>
-            <div class="stat-card"><span class="stat-number" id="totalGeral">0</span><span class="stat-label">Total</span></div>
+        <!-- ===== PONTO DE PARTIDA ===== -->
+        <div class="ponto-card">
+            <span class="icon">🏠</span>
+            <div class="info">
+                <div class="label">Lanchonete (saída e volta)</div>
+                <div class="endereco" id="pontoDisplay">Rua Bento Gonçalves, Camaquã</div>
+            </div>
+            <button class="btn-editar" id="btnEditarPonto">Editar</button>
         </div>
 
-        <!-- Informações da Rota -->
-        <div class="rota-info" id="rotaInfo">
-            <div class="info-row"><span class="label">🏠 Lanchonete:</span><span class="value" id="rotaPartida">-</span></div>
-            <div class="info-row"><span class="label">📦 Entregas:</span><span class="value entregas" id="rotaEntregas">0</span></div>
-            <div class="info-row"><span class="label">🔄 Voltas ao lanche:</span><span class="value voltas" id="rotaVoltas">0</span></div>
-            <div class="info-row"><span class="label">📏 Distância total:</span><span class="value" id="rotaDistancia">-</span></div>
-            <div class="info-row"><span class="label">⏱️ Tempo estimado:</span><span class="value" id="rotaTempo">-</span></div>
-            <div class="info-row"><span class="label">📋 Ordem:</span><span class="value" id="rotaOrdem" style="font-size:10px;">-</span></div>
+        <!-- ===== ROTA INFO ===== -->
+        <div class="rota-card" id="rotaInfo">
+            <div class="row"><span class="label">📍 Saída</span><span class="value" id="rotaPartida">-</span></div>
+            <div class="row"><span class="label">📦 Entregas</span><span class="value entregas" id="rotaEntregas">0</span></div>
+            <div class="row"><span class="label">🏁 Volta à lanchonete</span><span class="value volta" id="rotaVolta">Sim</span></div>
+            <div class="row"><span class="label">📏 Distância total</span><span class="value" id="rotaDistancia">-</span></div>
+            <div class="row"><span class="label">⏱️ Tempo estimado</span><span class="value" id="rotaTempo">-</span></div>
+            <div class="row" style="border-bottom:none;"><span class="label">📋 Ordem</span><span class="value" id="rotaOrdem" style="font-size:10px;">-</span></div>
         </div>
 
-        <!-- Formulário -->
-        <div class="form-group">
-            <div class="input-row">
+        <!-- ===== FORMULÁRIO ===== -->
+        <div class="form-card">
+            <div class="input-group">
                 <input type="text" id="rua" placeholder="Rua" class="input-rua">
                 <input type="number" id="numero" placeholder="Nº" class="input-numero">
                 <input type="text" id="cliente" placeholder="Cliente" class="input-cliente">
-                <button id="btnAdicionar" class="btn-add">+</button>
+                <button class="btn-add" id="btnAdicionar">+</button>
             </div>
-            <div class="input-row">
+            <div class="input-group">
                 <input type="text" id="obs" placeholder="Obs" class="input-rua">
                 <input type="number" id="valor" placeholder="R$" class="input-valor" step="0.01">
             </div>
+
             <div class="btn-group">
-                <button id="btnOrdenar" class="btn-secondary">🔄 Ordenar</button>
-                <button id="btnOtimizarRota" class="btn-gold">⚡ Otimizar</button>
-                <button id="btnAgrupar" class="btn-info">📊 Agrupar</button>
-                <button id="btnConcluir" class="btn-success">✅ Uma</button>
-                <button id="btnConcluirTudo" class="btn-warning">✅ Tudo</button>
+                <button class="btn btn-secondary" id="btnOrdenar">🔄 Ordenar</button>
+                <button class="btn btn-gold" id="btnOtimizarRota">⚡ Otimizar</button>
+                <button class="btn btn-purple" id="btnMostrarRota">🗺️ Mapa</button>
+                <button class="btn btn-success" id="btnConcluir">✅ Concluir</button>
             </div>
-            <div class="btn-group-extra">
-                <button id="btnWhatsApp" class="btn-whats">💬 WhatsApp</button>
-                <button id="btnVoice" class="btn-voice">🔊 Voz</button>
-                <button id="btnDarkMode" class="btn-dark">🌙 Modo</button>
-                <button id="btnHistorico" class="btn-info">📋 Hist</button>
-                <button id="btnLimpar" class="btn-danger">🗑️</button>
+            <div class="btn-group" style="margin-top:4px;">
+                <button class="btn btn-voice" id="btnNavegarVoz">🗣️ Navegar</button>
+                <button class="btn btn-mic" id="btnComandoVoz">🎤 Comando</button>
+                <button class="btn btn-info" id="btnResumoVoz">📊 Resumo</button>
+                <button class="btn btn-primary" id="btnMonitorar">📍 Monitor</button>
+            </div>
+            <div class="btn-group" style="margin-top:4px;">
+                <button class="btn btn-whats" id="btnWhatsApp">💬 WhatsApp</button>
+                <button class="btn btn-dark" id="btnDarkMode">🌙 Modo</button>
+                <button class="btn btn-info" id="btnHistorico">📋 Hist</button>
+                <button class="btn btn-danger" id="btnLimpar">🗑️</button>
             </div>
         </div>
 
-        <!-- Lista -->
-        <div class="lista-container">
-            <h2>📦 Entregas do dia (<span id="total">0</span>)</h2>
-            <ul id="listaEntregas" class="lista-entregas"></ul>
+        <!-- ===== LISTA ===== -->
+        <div class="lista-card">
+            <div class="header">
+                <h2>📦 Entregas do dia</h2>
+                <span class="count" id="total">0</span>
+            </div>
+            <ul class="lista-entregas" id="listaEntregas"></ul>
         </div>
 
-        <!-- Mapa -->
+        <!-- ===== MAPA ===== -->
         <div id="mapaContainer">
             <div id="mapa"></div>
-            <button id="fecharMapa" class="btn-close">✕ Fechar Mapa</button>
-        </div>
-
-        <!-- Histórico -->
-        <div id="historicoModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>📋 Histórico</h2>
-                    <button class="modal-close" id="fecharHistorico">✕</button>
-                </div>
-                <div class="modal-body">
-                    <div class="filtros">
-                        <button class="filtro-btn active" data-filtro="hoje">Hoje</button>
-                        <button class="filtro-btn" data-filtro="semana">Semana</button>
-                        <button class="filtro-btn" data-filtro="mes">Mês</button>
-                        <button class="filtro-btn" data-filtro="todos">Todos</button>
-                    </div>
-                    <div id="resumoHistorico" class="resumo-historico"></div>
-                    <ul id="listaHistorico" class="lista-historico"></ul>
-                    <button id="btnExportar" class="btn-exportar">📤 Exportar</button>
-                    <button id="btnBackup" class="btn-backup" style="margin-top:4px;">💾 Backup</button>
-                </div>
-            </div>
+            <button class="btn-fechar-mapa" id="fecharMapa">✕ Fechar Mapa</button>
         </div>
     </div>
 
-    <!-- Toast de voz -->
+    <!-- ===== COMANDOS DE VOZ ===== -->
+    <div class="comandos-voz" id="comandosVoz">
+        <div class="titulo">🎤 Comandos de voz disponíveis:</div>
+        <div class="comando"><strong>"Adicionar [rua] [número]"</strong> - Adiciona entrega</div>
+        <div class="comando"><strong>"Concluir"</strong> - Conclui última entrega</div>
+        <div class="comando"><strong>"Rota"</strong> - Otimiza rota</div>
+        <div class="comando"><strong>"Quantas"</strong> - Fala quantas faltam</div>
+        <div class="comando"><strong>"Resumo"</strong> - Resumo do dia</div>
+        <div class="comando"><strong>"Voltar"</strong> - Fala endereço da lanchonete</div>
+        <div class="comando"><strong>"Ajuda"</strong> - Mostra esta lista</div>
+    </div>
+
+    <!-- ===== MODAL HISTÓRICO ===== -->
+    <div class="modal" id="historicoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Histórico</h2>
+                <button class="modal-close" id="fecharHistorico">✕</button>
+            </div>
+            <div class="filtros">
+                <button class="filtro-btn active" data-filtro="hoje">Hoje</button>
+                <button class="filtro-btn" data-filtro="semana">Semana</button>
+                <button class="filtro-btn" data-filtro="mes">Mês</button>
+                <button class="filtro-btn" data-filtro="todos">Todos</button>
+            </div>
+            <div id="resumoHistorico" class="resumo-historico"></div>
+            <ul id="listaHistorico" class="lista-historico"></ul>
+            <button id="btnExportar" class="btn-exportar">📤 Exportar</button>
+            <button id="btnBackup" class="btn-backup" style="margin-top:4px;">💾 Backup</button>
+        </div>
+    </div>
+
+    <!-- ===== MODAL EDITAR PONTO ===== -->
+    <div class="modal" id="pontoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📍 Editar Lanchonete</h2>
+                <button class="modal-close" id="fecharPontoModal">✕</button>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">Endereço da lanchonete:</label>
+                <input type="text" id="inputPontoPartida" placeholder="Ex: Rua Bento Gonçalves, 123, Camaquã" style="width:100%;padding:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;color:#fff;font-size:14px;">
+            </div>
+            <button id="btnSalvarPonto" style="width:100%;padding:12px;background:#ff6b35;border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;">Salvar</button>
+        </div>
+    </div>
+
+    <!-- ===== TOAST DE VOZ ===== -->
     <div class="voice-toast" id="voiceToast"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
     <script>
-        // ==================== APP COMPLETO PREMIUM ====================
-        console.log('🚴 App Premium - Otimizado para lanchonete');
+        // ==================== APP COMPLETO ====================
+        console.log('🚴 App Entregas - Com voz e distâncias');
 
+        // ===== VARIÁVEIS =====
         let entregas = [];
         let historico = [];
         let totalGanho = 0;
         let pontoPartida = 'Rua Bento Gonçalves, Camaquã RS';
         let coordenadasPartida = null;
-        let coordenadasEntregas = [];
+        let coordenadasEntregasCache = [];
         let darkMode = false;
-        let utterance = null;
         let vozAtiva = true;
+        let utterance = null;
+        let monitorWatchId = null;
+        let reconhecimentoVoz = null;
 
-        // ==================== DADOS ====================
+        // ===== DOM REFS =====
+        const $ = id => document.getElementById(id);
+        const status = $('status');
+        const totalHoje = $('totalHoje');
+        const totalSemana = $('totalSemana');
+        const totalGeral = $('totalGeral');
+        const totalGanhoEl = $('totalGanho');
+        const listaEntregas = $('listaEntregas');
+        const total = $('total');
+        const rotaInfo = $('rotaInfo');
+        const rotaEntregas = $('rotaEntregas');
+        const rotaVolta = $('rotaVolta');
+        const rotaDistancia = $('rotaDistancia');
+        const rotaTempo = $('rotaTempo');
+        const rotaOrdem = $('rotaOrdem');
+        const rotaPartida = $('rotaPartida');
+        const pontoDisplay = $('pontoDisplay');
+        const mapaContainer = $('mapaContainer');
+        const mapa = $('mapa');
+        const voiceToast = $('voiceToast');
+        const comandosVoz = $('comandosVoz');
+
+        // ===== CARREGAR DADOS =====
         function carregarDados() {
             try {
                 const e = localStorage.getItem('entregas_camagua');
@@ -307,12 +1059,12 @@
                 if (g) totalGanho = parseFloat(g) || 0;
                 if (p) pontoPartida = p;
                 if (d) darkMode = d === 'true';
-                document.getElementById('pontoPartida').value = pontoPartida;
+                pontoDisplay.textContent = pontoPartida.substring(0, 30) + (pontoPartida.length > 30 ? '...' : '');
                 if (darkMode) document.body.classList.add('dark-mode');
-            } catch(e) { 
-                entregas = []; 
-                historico = []; 
-                totalGanho = 0; 
+            } catch (e) {
+                entregas = [];
+                historico = [];
+                totalGanho = 0;
             }
         }
 
@@ -325,7 +1077,7 @@
                 localStorage.setItem('darkMode_camagua', String(darkMode));
                 atualizarTudo();
                 return true;
-            } catch(e) { 
+            } catch (e) {
                 console.error('Erro:', e);
                 return false;
             }
@@ -336,100 +1088,119 @@
             calcularEstatisticas();
         }
 
-        // ==================== ESTATÍSTICAS ====================
+        // ===== ESTATÍSTICAS =====
         function calcularEstatisticas() {
-            const hoje = new Date(); hoje.setHours(0,0,0,0);
-            const semana = new Date(hoje); semana.setDate(hoje.getDate() - 7);
-            
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            const semana = new Date(hoje);
+            semana.setDate(hoje.getDate() - 7);
+
             const hHoje = historico.filter(h => new Date(h.data) >= hoje);
             const hSemana = historico.filter(h => new Date(h.data) >= semana);
-            
-            document.getElementById('totalHoje').textContent = hHoje.length;
-            document.getElementById('totalSemana').textContent = hSemana.length;
-            document.getElementById('totalGeral').textContent = historico.length;
-            document.getElementById('totalGanho').textContent = `R$ ${totalGanho.toFixed(2)}`;
+
+            totalHoje.textContent = hHoje.length;
+            totalSemana.textContent = hSemana.length;
+            totalGeral.textContent = historico.length;
+            totalGanhoEl.textContent = `R$ ${totalGanho.toFixed(2)}`;
         }
 
-        // ==================== ADICIONAR ====================
+        // ===== ADICIONAR =====
         function adicionarEntrega() {
-            const rua = document.getElementById('rua').value.trim();
-            const numero = parseInt(document.getElementById('numero').value);
-            const cliente = document.getElementById('cliente').value.trim();
-            const obs = document.getElementById('obs').value.trim();
-            const valor = parseFloat(document.getElementById('valor').value) || 0;
+            const rua = $('rua').value.trim();
+            const numero = parseInt($('numero').value);
+            const cliente = $('cliente').value.trim();
+            const obs = $('obs').value.trim();
+            const valor = parseFloat($('valor').value) || 0;
 
             if (!rua || !numero || numero <= 0) {
-                alert('⚠️ Preencha RUA e NÚMERO!');
+                mostrarNotificacao('⚠️ Preencha RUA e NÚMERO!');
                 return;
             }
 
             entregas.push({ rua, numero, cliente: cliente || '--', obs: obs || '--', valor });
-            
-            document.getElementById('rua').value = '';
-            document.getElementById('numero').value = '';
-            document.getElementById('cliente').value = '';
-            document.getElementById('obs').value = '';
-            document.getElementById('valor').value = '';
-            
+
+            $('rua').value = '';
+            $('numero').value = '';
+            $('cliente').value = '';
+            $('obs').value = '';
+            $('valor').value = '';
+
             salvarDados();
-            falar(`Adicionado ${rua}, número ${numero}`);
-            document.getElementById('rua').focus();
-            document.getElementById('rotaInfo').style.display = 'none';
+            falar(`Adicionado ${rua}, ${numero}`);
+            $('rua').focus();
+            rotaInfo.style.display = 'none';
         }
 
-        // ==================== CONCLUIR ====================
+        // ===== CONCLUIR =====
         function concluirEntrega(index) {
             if (index < 0 || index >= entregas.length) return;
             const entrega = entregas[index];
             const agora = new Date();
-            const dataHora = agora.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-            
-            historico.push({
-                rua: entrega.rua, numero: entrega.numero, cliente: entrega.cliente || '--',
-                obs: entrega.obs || '--', valor: entrega.valor || 0,
-                data: agora.toISOString(), dataHora: dataHora, timestamp: agora.getTime()
+            const dataHora = agora.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
             });
-            
+
+            historico.push({
+                rua: entrega.rua,
+                numero: entrega.numero,
+                cliente: entrega.cliente || '--',
+                obs: entrega.obs || '--',
+                valor: entrega.valor || 0,
+                data: agora.toISOString(),
+                dataHora: dataHora,
+                timestamp: agora.getTime()
+            });
+
             if (entrega.valor > 0) totalGanho += entrega.valor;
             entregas.splice(index, 1);
             salvarDados();
-            falar(`Entrega concluída: ${entrega.rua}, número ${entrega.numero}`);
+            falar(`Entrega concluída: ${entrega.rua}, ${entrega.numero}`);
         }
 
-        // ==================== RENDERIZAR LISTA ====================
+        // ===== LISTA =====
         function atualizarLista() {
-            const ul = document.getElementById('listaEntregas');
-            document.getElementById('total').textContent = entregas.length;
+            total.textContent = entregas.length;
 
             if (entregas.length === 0) {
-                ul.innerHTML = '<div class="empty-state"><span class="emoji">📭</span>Nenhuma entrega pendente</div>';
+                listaEntregas.innerHTML = `
+                            <div class="empty-state">
+                                <span class="emoji">📭</span>
+                                <span class="texto">Nenhuma entrega pendente</span>
+                            </div>
+                        `;
                 return;
             }
 
-            ul.innerHTML = '';
+            listaEntregas.innerHTML = '';
             entregas.forEach((item, index) => {
                 const li = document.createElement('li');
                 li.className = 'item-entrega';
                 li.innerHTML = `
-                    <div class="info">
-                        <span class="rua">${item.rua}</span>
-                        <span class="numero">Nº ${item.numero}</span>
-                        ${item.cliente && item.cliente !== '--' ? `<span class="cliente-info">👤 ${item.cliente}</span>` : ''}
-                        ${item.obs && item.obs !== '--' ? `<span class="cliente-info" style="color:#ffd700;">📝 ${item.obs}</span>` : ''}
-                        ${item.valor > 0 ? `<span class="cliente-info" style="color:#4CAF50;">💰 R$ ${item.valor.toFixed(2)}</span>` : ''}
-                    </div>
-                    <div class="botoes">
-                        <button class="btn-concluir" data-index="${index}">✅</button>
-                        <button class="btn-delete" data-index="${index}">✕</button>
-                    </div>
-                `;
-                ul.appendChild(li);
+                            <div class="info">
+                                <span class="rua">${item.rua}</span>
+                                <span class="numero">Nº ${item.numero}</span>
+                                ${item.cliente && item.cliente !== '--' ? `<span class="cliente-info">👤 ${item.cliente}</span>` : ''}
+                                ${item.obs && item.obs !== '--' ? `<span class="obs-info">📝 ${item.obs}</span>` : ''}
+                                ${item.valor > 0 ? `<span class="valor-info">💰 R$ ${item.valor.toFixed(2)}</span>` : ''}
+                                ${item.distancia !== undefined ? `<span class="distancia-info">📏 ${item.distancia.toFixed(2)} km</span>` : ''}
+                            </div>
+                            <div class="acoes">
+                                <button class="btn-concluir" data-index="${index}">✅</button>
+                                <button class="btn-delete" data-index="${index}">✕</button>
+                            </div>
+                        `;
+                listaEntregas.appendChild(li);
             });
 
             document.querySelectorAll('.btn-delete').forEach(btn => {
                 btn.onclick = function() {
                     const i = parseInt(this.dataset.index);
-                    if (confirm('Remover?')) { entregas.splice(i, 1); salvarDados(); }
+                    if (confirm('Remover?')) { entregas.splice(i, 1);
+                        salvarDados(); }
                 };
             });
 
@@ -438,21 +1209,23 @@
             });
         }
 
-        // ==================== ORDENAR ====================
+        // ===== ORDENAR =====
         function ordenarEntregas() {
             if (entregas.length === 0) { mostrarNotificacao('⚠️ Nenhuma entrega'); return; }
-            entregas.sort((a,b) => {
-                const ra = a.rua.toLowerCase(), rb = b.rua.toLowerCase();
+            entregas.sort((a, b) => {
+                const ra = a.rua.toLowerCase(),
+                    rb = b.rua.toLowerCase();
                 return ra < rb ? -1 : ra > rb ? 1 : a.numero - b.numero;
             });
             salvarDados();
             mostrarNotificacao('🔄 Ordenado!');
         }
 
-        // ==================== GEOCODIFICAÇÃO ====================
+        // ===== GEOCODIFICAÇÃO =====
         async function geocodificar(endereco) {
             try {
-                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endereco)}&format=json&limit=1`;
+                const url =
+                    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endereco)}&format=json&limit=1`;
                 const response = await fetch(url, {
                     headers: { 'User-Agent': 'EntregasApp/1.0' }
                 });
@@ -463,187 +1236,85 @@
                         lng: parseFloat(data[0].lon)
                     };
                 }
-            } catch(e) {
-                console.error('Erro geocodificação:', e);
-            }
+            } catch (e) { console.error('Erro:', e); }
             return null;
         }
 
-        // ==================== CALCULAR DISTÂNCIA ====================
+        // ===== DISTÂNCIA =====
         function calcularDistancia(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
         }
 
-        // ==================== AGRUPAR POR REGIÃO ====================
-        function agruparPorRegiao() {
-            if (entregas.length === 0) {
-                mostrarNotificacao('⚠️ Nenhuma entrega para agrupar');
-                return;
-            }
+        // ===== CALCULAR DISTÂNCIAS POR ENTREGA =====
+        async function calcularDistanciasEntregas() {
+            if (entregas.length === 0) return [];
 
-            const grupos = [];
-            const visitados = new Set();
-
-            for (let i = 0; i < entregas.length; i++) {
-                if (visitados.has(i)) continue;
-                
-                const grupo = [i];
-                visitados.add(i);
-                
-                for (let j = i + 1; j < entregas.length; j++) {
-                    if (visitados.has(j)) continue;
-                    
-                    const rua1 = entregas[i].rua.toLowerCase();
-                    const rua2 = entregas[j].rua.toLowerCase();
-                    const palavras1 = rua1.split(' ');
-                    const palavras2 = rua2.split(' ');
-                    
-                    let similar = false;
-                    for (const p1 of palavras1) {
-                        if (p1.length > 3 && palavras2.some(p2 => p2.includes(p1) || p1.includes(p2))) {
-                            similar = true;
-                            break;
-                        }
-                    }
-                    
-                    if (similar) {
-                        grupo.push(j);
-                        visitados.add(j);
-                    }
-                }
-                grupos.push(grupo);
-            }
-
-            // Mostrar resultado
-            let msg = `📊 ${grupos.length} grupos de entregas:\n\n`;
-            grupos.forEach((g, i) => {
-                msg += `Grupo ${i+1} (${g.length} entregas):\n`;
-                g.forEach(idx => {
-                    msg += `   • ${entregas[idx].rua}, ${entregas[idx].numero}\n`;
-                });
-                msg += '\n';
-            });
-            
-            falar(`Encontrados ${grupos.length} grupos de entregas`);
-            alert(msg);
-            return grupos;
-        }
-
-        // ==================== OTIMIZAR ROTA (IDA E VOLTA) ====================
-        async function otimizarRotaCompleta() {
-            if (entregas.length === 0) {
-                mostrarNotificacao('⚠️ Adicione entregas primeiro!');
-                return;
-            }
-
-            mostrarNotificacao('⏳ Calculando rota otimizada...');
-            falar('Calculando rota otimizada');
-
-            // 1. Geocodificar ponto de partida
             if (!coordenadasPartida) {
                 const coord = await geocodificar(pontoPartida);
-                if (coord) {
-                    coordenadasPartida = coord;
-                } else {
-                    coordenadasPartida = { lat: -30.8531, lng: -51.8125 };
-                }
+                coordenadasPartida = coord || { lat: -30.8531, lng: -51.8125 };
             }
 
-            // 2. Geocodificar todas as entregas
-            coordenadasEntregas = [];
+            const resultados = [];
+            let anterior = coordenadasPartida;
+
             for (const entrega of entregas) {
-                const endereco = `${entrega.rua}, ${entrega.numero}, Camaquã RS`;
-                const coord = await geocodificar(endereco);
+                const coord = await geocodificar(`${entrega.rua}, ${entrega.numero}, Camaquã RS`);
                 if (coord) {
-                    coordenadasEntregas.push({
-                        ...coord,
-                        rua: entrega.rua,
-                        numero: entrega.numero,
-                        cliente: entrega.cliente,
-                        obs: entrega.obs,
-                        valor: entrega.valor
+                    const dist = calcularDistancia(anterior.lat, anterior.lng, coord.lat, coord.lng);
+                    resultados.push({
+                        ...entrega,
+                        distancia: dist,
+                        coordenada: coord
                     });
+                    anterior = coord;
+                } else {
+                    resultados.push({ ...entrega, distancia: 0, coordenada: null });
                 }
             }
 
-            if (coordenadasEntregas.length === 0) {
-                mostrarNotificacao('⚠️ Nenhum endereço encontrado!');
-                return;
+            // Distância da última entrega até a lanchonete (volta final)
+            if (resultados.length > 0 && resultados[resultados.length - 1].coordenada) {
+                const ultima = resultados[resultados.length - 1].coordenada;
+                const distVolta = calcularDistancia(ultima.lat, ultima.lng, coordenadasPartida.lat, coordenadasPartida.lng);
+                resultados.push({
+                    rua: '🏁 VOLTA PARA LANCHONETE',
+                    numero: '',
+                    distancia: distVolta,
+                    coordenada: coordenadasPartida,
+                    isVolta: true
+                });
             }
 
-            // 3. Otimizar rota com ida e volta
-            const resultado = otimizarIdaVolta(coordenadasPartida, coordenadasEntregas);
-
-            // 4. Reordenar entregas
-            const novasEntregas = [];
-            const ordemTexto = [];
-            resultado.ordem.forEach((idx, pos) => {
-                const entrega = entregas[idx];
-                novasEntregas.push(entrega);
-                ordemTexto.push(`#${pos+1}: ${entrega.rua}, ${entrega.numero}`);
-            });
-
-            entregas = novasEntregas;
-            salvarDados();
-
-            // 5. Mostrar informações
-            const rotaInfo = document.getElementById('rotaInfo');
-            rotaInfo.style.display = 'block';
-            document.getElementById('rotaPartida').textContent = pontoPartida.substring(0, 25) + '...';
-            document.getElementById('rotaEntregas').textContent = resultado.ordem.length;
-            document.getElementById('rotaVoltas').textContent = resultado.voltas.length;
-            document.getElementById('rotaDistancia').textContent = `${resultado.distanciaTotal.toFixed(2)} km`;
-            
-            const tempoEstimado = (resultado.distanciaTotal / 20) * 60;
-            document.getElementById('rotaTempo').textContent = `${Math.floor(tempoEstimado)} min (~${Math.round(resultado.distanciaTotal / 20 * 60 / resultado.voltas.length || 1)} min/volta)`;
-            
-            let ordemResumo = '';
-            resultado.voltas.forEach((v, i) => {
-                const entregaNomes = v.entregas.map(idx => `${entregas[idx]?.rua?.substring(0,15) || '?'}`).join(' → ');
-                ordemResumo += `Volta ${i+1}: ${v.entregas.length} entregas (${v.distancia.toFixed(2)} km)\n`;
-            });
-            document.getElementById('rotaOrdem').textContent = ordemResumo.substring(0, 100) + (ordemResumo.length > 100 ? '...' : '');
-
-            // 6. Mostrar no mapa
-            await mostrarRotaOtimizada(resultado.pontos);
-
-            // 7. Falar o resumo
-            falar(`Rota otimizada com ${resultado.voltas.length} voltas ao lanche. Distância total de ${resultado.distanciaTotal.toFixed(1)} quilômetros.`);
-
-            mostrarNotificacao('✅ Rota otimizada!');
+            return resultados;
         }
 
-        // ==================== OTIMIZAR IDA E VOLTA ====================
-        function otimizarIdaVolta(pontoPartida, destinos) {
-            if (destinos.length === 0) return { ordem: [], distanciaTotal: 0, voltas: [], pontos: [pontoPartida] };
+        // ===== OTIMIZAR ROTA LINEAR COM VOLTA FINAL =====
+        function otimizarRotaLinear(pontoPartida, destinos) {
+            if (destinos.length === 0) return { ordem: [], distanciaTotal: 0, pontos: [pontoPartida] };
             if (destinos.length === 1) {
                 const dist = calcularDistancia(pontoPartida.lat, pontoPartida.lng, destinos[0].lat, destinos[0].lng);
                 const distVolta = calcularDistancia(destinos[0].lat, destinos[0].lng, pontoPartida.lat, pontoPartida.lng);
-                return { 
-                    ordem: [0], 
-                    distanciaTotal: dist + distVolta, 
-                    voltas: [{ entregas: [0], distancia: distVolta }],
+                return {
+                    ordem: [0],
+                    distanciaTotal: dist + distVolta,
                     pontos: [pontoPartida, destinos[0], pontoPartida]
                 };
             }
 
             let naoVisitados = destinos.map((d, i) => i);
             let ordem = [];
-            let voltas = [];
             let distanciaTotal = 0;
             let atual = pontoPartida;
-            let viagemAtual = [];
             let pontosRota = [pontoPartida];
 
             while (naoVisitados.length > 0) {
-                let maisProximo = null;
                 let menorDistancia = Infinity;
                 let indiceMaisProximo = -1;
 
@@ -656,39 +1327,118 @@
                 }
 
                 if (indiceMaisProximo !== -1) {
-                    viagemAtual.push(indiceMaisProximo);
+                    ordem.push(indiceMaisProximo);
                     distanciaTotal += menorDistancia;
                     atual = destinos[indiceMaisProximo];
                     pontosRota.push(atual);
                     naoVisitados = naoVisitados.filter(i => i !== indiceMaisProximo);
-
-                    const distVolta = calcularDistancia(atual.lat, atual.lng, pontoPartida.lat, pontoPartida.lng);
-                    
-                    // Decidir se volta: se tiver 2 entregas OU distância > 3km OU for a última
-                    if (viagemAtual.length >= 2 || distVolta > 3 || naoVisitados.length === 0) {
-                        distanciaTotal += distVolta;
-                        voltas.push({
-                            entregas: [...viagemAtual],
-                            distancia: distVolta,
-                            pontoVolta: { lat: pontoPartida.lat, lng: pontoPartida.lng }
-                        });
-                        ordem.push(...viagemAtual);
-                        pontosRota.push(pontoPartida);
-                        viagemAtual = [];
-                        atual = pontoPartida;
-                    }
                 }
             }
 
-            return { ordem, distanciaTotal, voltas, pontos: pontosRota };
+            const distVolta = calcularDistancia(atual.lat, atual.lng, pontoPartida.lat, pontoPartida.lng);
+            distanciaTotal += distVolta;
+            pontosRota.push(pontoPartida);
+
+            return { ordem, distanciaTotal, pontos: pontosRota };
         }
 
-        // ==================== MOSTRAR MAPA ====================
+        async function otimizarRotaCompleta() {
+            if (entregas.length === 0) {
+                mostrarNotificacao('⚠️ Adicione entregas!');
+                return;
+            }
+
+            mostrarNotificacao('⏳ Calculando rota...');
+            falar('Calculando rota otimizada');
+
+            if (!coordenadasPartida) {
+                const coord = await geocodificar(pontoPartida);
+                coordenadasPartida = coord || { lat: -30.8531, lng: -51.8125 };
+            }
+
+            const destinos = [];
+            const destinosComDistancia = [];
+            for (const entrega of entregas) {
+                const coord = await geocodificar(`${entrega.rua}, ${entrega.numero}, Camaquã RS`);
+                if (coord) {
+                    destinos.push({ ...coord, ...entrega });
+                    destinosComDistancia.push({ ...coord, ...entrega });
+                }
+            }
+
+            if (destinos.length === 0) {
+                mostrarNotificacao('⚠️ Nenhum endereço encontrado!');
+                return;
+            }
+
+            const resultado = otimizarRotaLinear(coordenadasPartida, destinos);
+
+            // Reordenar entregas
+            const novasEntregas = [];
+            const ordemTexto = [];
+            let distanciaAcumulada = 0;
+            let anterior = coordenadasPartida;
+
+            resultado.ordem.forEach((idx, pos) => {
+                const entrega = entregas[idx];
+                const coord = destinos[idx];
+                if (coord) {
+                    const dist = calcularDistancia(anterior.lat, anterior.lng, coord.lat, coord.lng);
+                    distanciaAcumulada += dist;
+                    novasEntregas.push({
+                        ...entrega,
+                        distancia: dist,
+                        distanciaAcumulada: distanciaAcumulada
+                    });
+                    ordemTexto.push(`#${pos+1}: ${entrega.rua}, ${entrega.numero} (${dist.toFixed(2)} km)`);
+                    anterior = coord;
+                } else {
+                    novasEntregas.push(entrega);
+                }
+            });
+
+            // Distância da volta final
+            if (resultado.ordem.length > 0) {
+                const ultimoIdx = resultado.ordem[resultado.ordem.length - 1];
+                const ultimoCoord = destinos[ultimoIdx];
+                if (ultimoCoord) {
+                    const distVolta = calcularDistancia(ultimoCoord.lat, ultimoCoord.lng, coordenadasPartida.lat,
+                        coordenadasPartida.lng);
+                    distanciaAcumulada += distVolta;
+                    ordemTexto.push(`🏁 Volta à lanchonete (${distVolta.toFixed(2)} km)`);
+                }
+            }
+
+            entregas = novasEntregas;
+            salvarDados();
+
+            // Mostrar informações
+            rotaInfo.style.display = 'block';
+            rotaPartida.textContent = pontoPartida.substring(0, 25) + '...';
+            rotaEntregas.textContent = resultado.ordem.length;
+            rotaVolta.textContent = `🏁 ${resultado.ordem.length > 0 ? 'Sim' : '-'}`;
+            rotaDistancia.textContent = `${resultado.distanciaTotal.toFixed(2)} km`;
+
+            const tempoEstimado = (resultado.distanciaTotal / 20) * 60;
+            rotaTempo.textContent = `${Math.floor(tempoEstimado)} min`;
+
+            rotaOrdem.textContent = ordemTexto.join(' → ').substring(0, 100) + (ordemTexto.join(' → ').length > 100 ?
+                '...' : '');
+
+            await mostrarRotaOtimizada(resultado.pontos);
+
+            // Falar resumo com distâncias
+            falar(
+                `Rota otimizada com ${resultado.ordem.length} entregas. Distância total de ${resultado.distanciaTotal.toFixed(1)} quilômetros. Volta à lanchonete no final.`
+                );
+
+            mostrarNotificacao('✅ Rota otimizada!');
+        }
+
+        // ===== MOSTRAR MAPA =====
         async function mostrarRotaOtimizada(pontos) {
-            const container = document.getElementById('mapaContainer');
-            container.style.display = 'block';
-            const mapaDiv = document.getElementById('mapa');
-            mapaDiv.innerHTML = '';
+            mapaContainer.style.display = 'block';
+            mapa.innerHTML = '';
 
             if (typeof L === 'undefined') {
                 mostrarNotificacao('⚠️ Mapa não carregou');
@@ -697,72 +1447,66 @@
 
             const map = L.map('mapa').setView([-30.8531, -51.8125], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
+                attribution: '© OSM'
             }).addTo(map);
 
-            // Ícones
             const iconePartida = L.divIcon({
                 className: 'custom-div-icon',
-                html: '<div style="background:#ff6b35;color:white;padding:4px 8px;border-radius:50%;font-weight:bold;border:2px solid white;font-size:12px;">🏠</div>',
+                html: '<div style="background:#ff6b35;color:#fff;padding:4px 8px;border-radius:50%;font-weight:bold;border:2px solid #fff;font-size:12px;">🏠</div>',
                 iconSize: [30, 30],
                 iconAnchor: [15, 15]
             });
 
             const iconeVolta = L.divIcon({
                 className: 'custom-div-icon',
-                html: '<div style="background:#ff5722;color:white;padding:4px 8px;border-radius:50%;font-weight:bold;border:2px solid white;font-size:10px;">🔄</div>',
-                iconSize: [25, 25],
-                iconAnchor: [12, 12]
+                html: '<div style="background:#ff5722;color:#fff;padding:4px 8px;border-radius:50%;font-weight:bold;border:2px solid #fff;font-size:10px;">🏁</div>',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
             });
 
-            // Marcar pontos
             let entregaIndex = 1;
-            let voltaIndex = 0;
-            let voltas = [];
-            
-            // Extrair voltas do array de pontos
+
             for (let i = 0; i < pontos.length; i++) {
                 const p = pontos[i];
-                const isPartida = i === 0 || (i > 0 && i < pontos.length - 1 && 
-                    p.lat === pontos[0].lat && p.lng === pontos[0].lng);
-                
-                if (isPartida && i > 0) {
-                    // É uma volta
-                    voltaIndex++;
-                    L.marker([p.lat, p.lng], { icon: iconeVolta })
-                        .addTo(map)
-                        .bindPopup(`🔄 Volta #${voltaIndex} ao lanche`);
-                } else if (i === 0) {
+                const isPartida = i === 0;
+                const isVolta = i === pontos.length - 1;
+
+                if (isPartida) {
                     L.marker([p.lat, p.lng], { icon: iconePartida })
                         .addTo(map)
-                        .bindPopup(`🏠 Lanchonete<br>${pontoPartida}`);
+                        .bindPopup(`🏠 SAÍDA<br>${pontoPartida.substring(0, 30)}`);
+                } else if (isVolta) {
+                    L.marker([p.lat, p.lng], { icon: iconeVolta })
+                        .addTo(map)
+                        .bindPopup(`🏁 VOLTA FINAL<br>${pontoPartida.substring(0, 30)}`);
                 } else {
-                    // É uma entrega
                     const entrega = entregas[entregaIndex - 1];
                     if (entrega) {
                         const cor = entregaIndex % 2 === 0 ? '#4CAF50' : '#ff6b35';
-                        const icone = L.divIcon({
-                            className: 'custom-div-icon',
-                            html: `<div style="background:${cor};color:white;padding:3px 6px;border-radius:50%;font-weight:bold;border:2px solid white;font-size:10px;">${entregaIndex}</div>`,
-                            iconSize: [22, 22],
-                            iconAnchor: [11, 11]
-                        });
-                        L.marker([p.lat, p.lng], { icon: icone })
-                            .addTo(map)
-                            .bindPopup(`<b>#${entregaIndex}</b><br>📦 ${entrega.rua}, ${entrega.numero}${entrega.cliente && entrega.cliente !== '--' ? `<br>👤 ${entrega.cliente}` : ''}${entrega.valor > 0 ? `<br>💰 R$ ${entrega.valor.toFixed(2)}` : ''}`);
+                        const dist = entrega.distancia ? `📏 ${entrega.distancia.toFixed(2)} km` : '';
+                        L.marker([p.lat, p.lng], {
+                            icon: L.divIcon({
+                                className: 'custom-div-icon',
+                                html: `<div style="background:${cor};color:#fff;padding:2px 6px;border-radius:50%;font-weight:bold;border:2px solid #fff;font-size:9px;">${entregaIndex}</div>`,
+                                iconSize: [22, 22],
+                                iconAnchor: [11, 11]
+                            })
+                        }).addTo(map)
+                            .bindPopup(
+                                `<b>#${entregaIndex}</b><br>📦 ${entrega.rua}, ${entrega.numero}${entrega.cliente && entrega.cliente !== '--' ? `<br>👤 ${entrega.cliente}` : ''}${entrega.valor > 0 ? `<br>💰 R$ ${entrega.valor.toFixed(2)}` : ''}${dist ? `<br>📏 ${dist}` : ''}`
+                                );
                         entregaIndex++;
                     }
                 }
             }
 
-            // Desenhar rotas (linhas)
             if (pontos.length > 1) {
                 const latlngs = pontos.map(p => [p.lat, p.lng]);
                 L.polyline(latlngs, {
                     color: '#ff5722',
                     weight: 4,
                     opacity: 0.8,
-                    dashArray: '8, 6'
+                    dashArray: '8,6'
                 }).addTo(map);
 
                 const bounds = L.latLngBounds(latlngs);
@@ -770,80 +1514,317 @@
             }
         }
 
-        // ==================== WHATSAPP ====================
-        function compartilharWhatsApp() {
+        // ===== NAVEGAÇÃO POR VOZ =====
+        function navegarPorVoz() {
             if (entregas.length === 0) {
-                mostrarNotificacao('⚠️ Nenhuma entrega para compartilhar');
+                mostrarNotificacao('⚠️ Nenhuma entrega para navegar');
                 return;
             }
 
-            let mensagem = `🚴 *ENTREGAS CAMAQUÃ*\n`;
-            mensagem += `═`.repeat(30) + '\n\n';
-            mensagem += `🏠 *Lanchonete:* ${pontoPartida.substring(0, 40)}\n`;
-            mensagem += `📦 *Entregas:* ${entregas.length}\n\n`;
-            mensagem += `📋 *Rota otimizada:*\n`;
-            
-            entregas.forEach((e, i) => {
-                mensagem += `${i+1}. ${e.rua}, ${e.numero}`;
-                if (e.cliente && e.cliente !== '--') mensagem += ` (${e.cliente})`;
-                if (e.valor > 0) mensagem += ` - R$ ${e.valor.toFixed(2)}`;
-                mensagem += '\n';
+            falar(`Iniciando navegação com ${entregas.length} entregas`);
+
+            entregas.forEach((entrega, index) => {
+                setTimeout(() => {
+                    const numero = index + 1;
+                    const total = entregas.length;
+                    const dist = entrega.distancia ? `${entrega.distancia.toFixed(1)} km` : '';
+                    let msg =
+                        `Entrega ${numero} de ${total}: ${entrega.rua}, número ${entrega.numero}`;
+                    if (entrega.cliente && entrega.cliente !== '--') msg += `, cliente ${entrega.cliente}`;
+                    if (dist) msg += `, distância ${dist}`;
+                    if (entrega.obs && entrega.obs !== '--') msg += `, observação: ${entrega.obs}`;
+                    falar(msg);
+
+                    if (index === entregas.length - 1) {
+                        setTimeout(() => {
+                            falar(`Última entrega! Volte para a lanchonete em ${pontoPartida}`);
+                        }, 2000);
+                    }
+                }, index * 5000);
+            });
+        }
+
+        // ===== MONITORAR CHEGADA =====
+        function monitorarChegada() {
+            if (entregas.length === 0) {
+                mostrarNotificacao('⚠️ Nenhuma entrega para monitorar');
+                return;
+            }
+
+            if (!navigator.geolocation) {
+                mostrarNotificacao('⚠️ GPS não disponível');
+                return;
+            }
+
+            if (monitorWatchId) {
+                navigator.geolocation.clearWatch(monitorWatchId);
+                monitorWatchId = null;
+                mostrarNotificacao('📍 Monitoramento desativado');
+                falar('Monitoramento desativado');
+                return;
+            }
+
+            falar('Monitorando aproximação das entregas');
+
+            let entregaAtual = 0;
+
+            monitorWatchId = navigator.geolocation.watchPosition(async (pos) => {
+                if (entregaAtual >= entregas.length) {
+                    navigator.geolocation.clearWatch(monitorWatchId);
+                    monitorWatchId = null;
+                    falar('Todas as entregas monitoradas!');
+                    return;
+                }
+
+                const entrega = entregas[entregaAtual];
+                const coord = await geocodificar(`${entrega.rua}, ${entrega.numero}, Camaquã RS`);
+
+                if (coord) {
+                    const dist = calcularDistancia(
+                        pos.coords.latitude, pos.coords.longitude,
+                        coord.lat, coord.lng
+                    );
+
+                    // Se estiver a menos de 100 metros
+                    if (dist < 0.1) {
+                        falar(`Você chegou em ${entrega.rua}, número ${entrega.numero}`);
+                        entregaAtual++;
+
+                        if (entregaAtual === entregas.length) {
+                            falar(`Todas as entregas concluídas! Volte para ${pontoPartida}`);
+                            navigator.geolocation.clearWatch(monitorWatchId);
+                            monitorWatchId = null;
+                        }
+                    } else if (dist < 0.5) {
+                        // Aviso de aproximação a 500 metros
+                        falar(`Aproximando de ${entrega.rua}, número ${entrega.numero}, ${(dist * 1000).toFixed(0)} metros`);
+                    }
+                }
+            }, (error) => {
+                console.error('Erro GPS:', error);
+                mostrarNotificacao('⚠️ Erro no GPS');
+            }, {
+                enableHighAccuracy: true,
+                distanceFilter: 30
             });
 
-            mensagem += `\n💰 *Total: R$ ${entregas.reduce((s,e) => s + e.valor, 0).toFixed(2)}*`;
+            mostrarNotificacao('📍 Monitorando...');
+        }
 
-            const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
-            window.open(url, '_blank');
+        // ===== RESUMO DIÁRIO POR VOZ =====
+        function resumoDiarioVoz() {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            const entregasHoje = historico.filter(h => new Date(h.data) >= hoje);
+            const totalHoje = entregasHoje.length;
+            const valorHoje = entregasHoje.reduce((s, h) => s + (h.valor || 0), 0);
+
+            let msg = `Resumo de hoje: `;
+            msg += `${totalHoje} entregas concluídas`;
+            if (valorHoje > 0) msg += `, total de R$ ${valorHoje.toFixed(2)}`;
+            if (entregas.length > 0) msg += `, ${entregas.length} entregas pendentes`;
+
+            // Calcular distância total do dia se tiver dados
+            if (entregas.length > 0 || historico.length > 0) {
+                msg += `. `;
+                if (entregas.length > 0) {
+                    const distTotal = entregas.reduce((s, e) => s + (e.distancia || 0), 0);
+                    if (distTotal > 0) msg += `Distância pendente: ${distTotal.toFixed(1)} km. `;
+                }
+            }
+
+            falar(msg);
+            mostrarNotificacao('📊 Resumo falado!');
+        }
+
+        // ===== COMANDOS DE VOZ =====
+        function iniciarComandoVoz() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                mostrarNotificacao('⚠️ Comando de voz não disponível');
+                return;
+            }
+
+            if (reconhecimentoVoz) {
+                reconhecimentoVoz.stop();
+                reconhecimentoVoz = null;
+                status.className = 'status-badge online';
+                status.textContent = 'Online';
+                comandosVoz.classList.remove('active');
+                mostrarNotificacao('🎤 Comando de voz desativado');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            reconhecimentoVoz = new SpeechRecognition();
+            reconhecimentoVoz.lang = 'pt-BR';
+            reconhecimentoVoz.continuous = true;
+            reconhecimentoVoz.interimResults = false;
+
+            status.className = 'status-badge listening';
+            status.textContent = '🎤 Ouvindo...';
+            comandosVoz.classList.add('active');
+            mostrarNotificacao('🎤 Falar comando...');
+
+            reconhecimentoVoz.onresult = function(event) {
+                const comando = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+                voiceToast.textContent = '🎤 ' + comando;
+                voiceToast.classList.add('active');
+                setTimeout(() => voiceToast.classList.remove('active'), 3000);
+
+                console.log('Comando:', comando);
+
+                // Processar comandos
+                if (comando.includes('adicionar') || comando.includes('add')) {
+                    const partes = comando.replace(/adicionar|add/g, '').trim().split(' ');
+                    let numero = 0;
+                    let rua = [];
+                    for (const p of partes) {
+                        const num = parseInt(p);
+                        if (!isNaN(num) && num > 0) {
+                            numero = num;
+                        } else {
+                            rua.push(p);
+                        }
+                    }
+                    rua = rua.join(' ');
+                    if (rua && numero > 0) {
+                        entregas.push({ rua, numero, cliente: '--', obs: '--', valor: 0 });
+                        salvarDados();
+                        falar(`Adicionado ${rua}, número ${numero}`);
+                    } else {
+                        falar('Comando não reconhecido. Diga: adicionar [rua] [número]');
+                    }
+                } else if (comando.includes('concluir') || comando.includes('finalizar')) {
+                    if (entregas.length > 0) {
+                        concluirEntrega(entregas.length - 1);
+                    } else {
+                        falar('Nenhuma entrega para concluir');
+                    }
+                } else if (comando.includes('rota') || comando.includes('otimizar')) {
+                    otimizarRotaCompleta();
+                } else if (comando.includes('quantas') || comando.includes('quantos')) {
+                    falar(`Você tem ${entregas.length} entregas pendentes`);
+                } else if (comando.includes('resumo')) {
+                    resumoDiarioVoz();
+                } else if (comando.includes('voltar') || comando.includes('lanchonete')) {
+                    falar(`Volte para ${pontoPartida}`);
+                } else if (comando.includes('navegar') || comando.includes('navegação')) {
+                    navegarPorVoz();
+                } else if (comando.includes('monitor') || comando.includes('monitorar')) {
+                    monitorarChegada();
+                } else if (comando.includes('ajuda')) {
+                    comandosVoz.classList.toggle('active');
+                    falar('Comandos disponíveis: adicionar, concluir, rota, quantas, resumo, voltar, navegar, monitorar');
+                } else if (comando.includes('parar') || comando.includes('cancelar')) {
+                    if (reconhecimentoVoz) {
+                        reconhecimentoVoz.stop();
+                        reconhecimentoVoz = null;
+                        status.className = 'status-badge online';
+                        status.textContent = 'Online';
+                        comandosVoz.classList.remove('active');
+                        mostrarNotificacao('🎤 Comando de voz desativado');
+                        falar('Comando de voz desativado');
+                    }
+                } else {
+                    falar('Comando não reconhecido. Diga ajuda para ver os comandos');
+                }
+            };
+
+            reconhecimentoVoz.onerror = function(event) {
+                console.error('Erro voz:', event.error);
+                if (event.error === 'not-allowed') {
+                    mostrarNotificacao('⚠️ Permissão de microfone negada');
+                } else if (event.error === 'no-speech') {
+                    // Não faz nada, continua ouvindo
+                } else {
+                    mostrarNotificacao('⚠️ Erro no comando de voz');
+                }
+            };
+
+            reconhecimentoVoz.onend = function() {
+                // Se não foi parado manualmente, reinicia
+                if (reconhecimentoVoz) {
+                    try {
+                        reconhecimentoVoz.start();
+                    } catch (e) {}
+                }
+            };
+
+            try {
+                reconhecimentoVoz.start();
+                falar('Ouvindo comandos de voz...');
+            } catch (e) {
+                mostrarNotificacao('⚠️ Erro ao iniciar microfone');
+            }
+        }
+
+        // ===== WHATSAPP =====
+        function compartilharWhatsApp() {
+            if (entregas.length === 0) {
+                mostrarNotificacao('⚠️ Nenhuma entrega');
+                return;
+            }
+
+            let msg = `🚴 *ENTREGAS CAMAQUÃ*\n`;
+            msg += `═`.repeat(30) + '\n\n';
+            msg += `🏠 *Lanchonete:* ${pontoPartida.substring(0, 40)}\n`;
+            msg += `📦 *Entregas:* ${entregas.length}\n\n`;
+            msg += `📋 *Rota otimizada com distâncias:*\n`;
+
+            let totalDistancia = 0;
+            entregas.forEach((e, i) => {
+                const dist = e.distancia ? ` (${e.distancia.toFixed(2)} km)` : '';
+                totalDistancia += e.distancia || 0;
+                msg += `${i+1}. ${e.rua}, ${e.numero}`;
+                if (e.cliente && e.cliente !== '--') msg += ` (${e.cliente})`;
+                if (e.valor > 0) msg += ` - R$ ${e.valor.toFixed(2)}`;
+                if (dist) msg += dist;
+                msg += '\n';
+            });
+
+            msg += `\n📏 *Distância total: ${totalDistancia.toFixed(2)} km*\n`;
+            msg += `🏁 *Volta à lanchonete no final*\n`;
+            msg += `💰 *Total: R$ ${entregas.reduce((s,e) => s + e.valor, 0).toFixed(2)}*`;
+
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
             falar('Compartilhando rota no WhatsApp');
         }
 
-        // ==================== NAVEGAÇÃO POR VOZ ====================
+        // ===== VOZ =====
         function falar(texto) {
             if (!vozAtiva) return;
-            
             try {
                 if (window.speechSynthesis) {
-                    if (utterance) {
-                        window.speechSynthesis.cancel();
-                    }
+                    if (utterance) window.speechSynthesis.cancel();
                     utterance = new SpeechSynthesisUtterance(texto);
                     utterance.lang = 'pt-BR';
                     utterance.rate = 0.9;
                     utterance.pitch = 1;
-                    utterance.volume = 1;
-                    
-                    // Mostrar no toast
-                    const toast = document.getElementById('voiceToast');
-                    toast.textContent = '🔊 ' + texto;
-                    toast.classList.add('active');
-                    setTimeout(() => toast.classList.remove('active'), 3000);
-                    
+                    voiceToast.textContent = '🔊 ' + texto;
+                    voiceToast.classList.add('active');
+                    setTimeout(() => voiceToast.classList.remove('active'), 4000);
                     window.speechSynthesis.speak(utterance);
                 }
-            } catch(e) {
-                console.error('Erro na voz:', e);
-            }
+            } catch (e) { console.error('Erro voz:', e); }
         }
 
         function alternarVoz() {
             vozAtiva = !vozAtiva;
             mostrarNotificacao(vozAtiva ? '🔊 Voz ativada' : '🔇 Voz desativada');
-            if (vozAtiva) {
-                falar('Voz ativada');
-            }
+            if (vozAtiva) falar('Voz ativada');
         }
 
-        // ==================== DARK MODE ====================
+        // ===== DARK MODE =====
         function alternarDarkMode() {
             darkMode = !darkMode;
             document.body.classList.toggle('dark-mode');
             localStorage.setItem('darkMode_camagua', String(darkMode));
-            mostrarNotificacao(darkMode ? '🌙 Modo noturno ativado' : '☀️ Modo claro ativado');
+            mostrarNotificacao(darkMode ? '🌙 Modo noturno' : '☀️ Modo claro');
         }
 
-        // ==================== HISTÓRICO ====================
+        // ===== HISTÓRICO =====
         function abrirHistorico(filtro = 'hoje') {
-            document.getElementById('historicoModal').style.display = 'block';
+            $('historicoModal').style.display = 'block';
             aplicarFiltro(filtro);
         }
 
@@ -854,27 +1835,28 @@
                 const inicio = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
                 filtrados = historico.filter(h => new Date(h.data) >= inicio);
             } else if (filtro === 'semana') {
-                const inicio = new Date(agora); inicio.setDate(agora.getDate() - 7);
+                const inicio = new Date(agora);
+                inicio.setDate(agora.getDate() - 7);
                 filtrados = historico.filter(h => new Date(h.data) >= inicio);
             } else if (filtro === 'mes') {
                 const inicio = new Date(agora.getFullYear(), agora.getMonth(), 1);
                 filtrados = historico.filter(h => new Date(h.data) >= inicio);
             }
-            filtrados.sort((a,b) => b.timestamp - a.timestamp);
+            filtrados.sort((a, b) => b.timestamp - a.timestamp);
 
             const totalValor = filtrados.reduce((s, h) => s + (h.valor || 0), 0);
             const ruas = {};
             filtrados.forEach(h => { ruas[h.rua] = (ruas[h.rua] || 0) + 1; });
-            const top = Object.entries(ruas).sort((a,b) => b[1]-a[1]).slice(0,3).map(([r,c]) => `${r} (${c}x)`);
+            const top = Object.entries(ruas).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([r, c]) => `${r} (${c}x)`);
 
-            document.getElementById('resumoHistorico').innerHTML = `
-                <strong>📊 Resumo:</strong><br>
-                Total: ${filtrados.length} entregas<br>
-                💰 R$ ${totalValor.toFixed(2)}<br>
-                Ruas: ${top.join(', ') || 'Nenhuma'}
-            `;
+            $('resumoHistorico').innerHTML = `
+                        <strong>📊 Resumo:</strong><br>
+                        Total: ${filtrados.length} entregas<br>
+                        💰 R$ ${totalValor.toFixed(2)}<br>
+                        Ruas: ${top.join(', ') || 'Nenhuma'}
+                    `;
 
-            const lista = document.getElementById('listaHistorico');
+            const lista = $('listaHistorico');
             if (filtrados.length === 0) {
                 lista.innerHTML = '<div class="empty-state">Nenhuma entrega</div>';
                 return;
@@ -884,17 +1866,17 @@
                 const li = document.createElement('li');
                 li.className = 'item-historico';
                 li.innerHTML = `
-                    <div><strong>${item.rua}</strong>, ${item.numero} ${item.cliente && item.cliente !== '--' ? '👤'+item.cliente : ''} ${item.valor > 0 ? '💰R$'+item.valor.toFixed(2) : ''}</div>
-                    <div class="data-hora">${item.dataHora}</div>
-                `;
+                            <div><strong>${item.rua}</strong>, ${item.numero} ${item.cliente && item.cliente !== '--' ? '👤'+item.cliente : ''} ${item.valor > 0 ? '💰R$'+item.valor.toFixed(2) : ''}</div>
+                            <div class="data-hora">${item.dataHora}</div>
+                        `;
                 lista.appendChild(li);
             });
         }
 
-        // ==================== EXPORTAR / BACKUP ====================
+        // ===== EXPORTAR =====
         function exportarRelatorio() {
             if (historico.length === 0) { alert('Sem histórico'); return; }
-            const totalValor = historico.reduce((s,h) => s + (h.valor||0), 0);
+            const totalValor = historico.reduce((s, h) => s + (h.valor || 0), 0);
             let rel = `🚴 RELATÓRIO - ${new Date().toLocaleDateString('pt-BR')}\n`;
             rel += `═`.repeat(40) + '\n';
             rel += `📦 Total: ${historico.length} entregas\n`;
@@ -918,98 +1900,153 @@
             mostrarNotificacao('💾 Backup baixado!');
         }
 
-        // ==================== NOTIFICAÇÕES ====================
+        // ===== NOTIFICAÇÕES =====
         function mostrarNotificacao(msg) {
-            const s = document.getElementById('status');
-            const old = s.textContent;
-            s.textContent = msg;
-            s.style.background = '#1b5e20';
-            s.style.color = '#81c784';
-            setTimeout(() => { 
-                s.textContent = old; 
-                s.style.background = ''; 
-                s.style.color = ''; 
+            const old = status.textContent;
+            status.textContent = msg;
+            status.style.background = '#0d2818';
+            status.style.color = '#4CAF50';
+            setTimeout(() => {
+                status.textContent = old;
+                status.style.background = '';
+                status.style.color = '';
             }, 3000);
         }
 
-        // ==================== EVENTOS ====================
+        // ===== MOSTRAR MAPA ATUAL =====
+        async function mostrarMapaAtual() {
+            if (entregas.length === 0) {
+                mostrarNotificacao('⚠️ Adicione entregas primeiro!');
+                return;
+            }
+
+            if (rotaInfo.style.display === 'block') {
+                mapaContainer.style.display = 'block';
+                return;
+            }
+
+            mostrarNotificacao('⏳ Carregando mapa...');
+            if (!coordenadasPartida) {
+                const coord = await geocodificar(pontoPartida);
+                coordenadasPartida = coord || { lat: -30.8531, lng: -51.8125 };
+            }
+
+            const destinos = [];
+            for (const entrega of entregas) {
+                const coord = await geocodificar(`${entrega.rua}, ${entrega.numero}, Camaquã RS`);
+                if (coord) {
+                    destinos.push({ ...coord, ...entrega });
+                }
+            }
+
+            if (destinos.length === 0) {
+                mostrarNotificacao('⚠️ Nenhum endereço encontrado!');
+                return;
+            }
+
+            const resultado = otimizarRotaLinear(coordenadasPartida, destinos);
+            await mostrarRotaOtimizada(resultado.pontos);
+            mostrarNotificacao('🗺️ Mapa carregado!');
+        }
+
+        // ===== EVENTOS =====
         document.addEventListener('DOMContentLoaded', function() {
             carregarDados();
             atualizarTudo();
 
             // Adicionar
-            document.getElementById('btnAdicionar').onclick = adicionarEntrega;
+            $('btnAdicionar').onclick = adicionarEntrega;
             document.querySelectorAll('.input-rua, .input-numero, .input-cliente').forEach(input => {
                 input.onkeypress = function(e) { if (e.key === 'Enter') adicionarEntrega(); };
             });
 
-            // Salvar ponto
-            document.getElementById('btnSalvarPonto').onclick = function() {
-                const novoPonto = document.getElementById('pontoPartida').value.trim();
-                if (novoPonto) {
-                    pontoPartida = novoPonto;
+            // Editar ponto
+            $('btnEditarPonto').onclick = function() {
+                $('inputPontoPartida').value = pontoPartida;
+                $('pontoModal').style.display = 'block';
+            };
+
+            $('fecharPontoModal').onclick = function() {
+                $('pontoModal').style.display = 'none';
+            };
+
+            $('btnSalvarPonto').onclick = function() {
+                const novo = $('inputPontoPartida').value.trim();
+                if (novo) {
+                    pontoPartida = novo;
                     coordenadasPartida = null;
+                    pontoDisplay.textContent = novo.substring(0, 30) + (novo.length > 30 ? '...' : '');
                     localStorage.setItem('pontoPartida_camagua', pontoPartida);
+                    $('pontoModal').style.display = 'none';
                     mostrarNotificacao('📍 Ponto salvo!');
                     falar('Ponto de partida salvo');
                 }
             };
 
             // Otimizar Rota
-            document.getElementById('btnOtimizarRota').onclick = otimizarRotaCompleta;
+            $('btnOtimizarRota').onclick = otimizarRotaCompleta;
 
-            // Agrupar
-            document.getElementById('btnAgrupar').onclick = agruparPorRegiao;
+            // Ver Mapa
+            $('btnMostrarRota').onclick = mostrarMapaAtual;
+
+            // Navegar por voz
+            $('btnNavegarVoz').onclick = navegarPorVoz;
+
+            // Comando de voz
+            $('btnComandoVoz').onclick = iniciarComandoVoz;
+
+            // Resumo diário por voz
+            $('btnResumoVoz').onclick = resumoDiarioVoz;
+
+            // Monitorar chegada
+            $('btnMonitorar').onclick = monitorarChegada;
 
             // Ordenar
-            document.getElementById('btnOrdenar').onclick = ordenarEntregas;
+            $('btnOrdenar').onclick = ordenarEntregas;
 
             // Concluir
-            document.getElementById('btnConcluir').onclick = function() {
+            $('btnConcluir').onclick = function() {
                 if (entregas.length === 0) { mostrarNotificacao('⚠️ Nenhuma entrega'); return; }
                 concluirEntrega(entregas.length - 1);
             };
 
-            document.getElementById('btnConcluirTudo').onclick = function() {
-                if (entregas.length === 0) { mostrarNotificacao('⚠️ Nenhuma entrega'); return; }
-                if (confirm(`Concluir ${entregas.length} entregas?`)) {
-                    while (entregas.length > 0) concluirEntrega(0);
-                    mostrarNotificacao('✅ Todas concluídas!');
-                }
-            };
-
             // WhatsApp
-            document.getElementById('btnWhatsApp').onclick = compartilharWhatsApp;
-
-            // Voz
-            document.getElementById('btnVoice').onclick = alternarVoz;
+            $('btnWhatsApp').onclick = compartilharWhatsApp;
 
             // Dark Mode
-            document.getElementById('btnDarkMode').onclick = alternarDarkMode;
+            $('btnDarkMode').onclick = alternarDarkMode;
 
             // Histórico
-            document.getElementById('btnHistorico').onclick = function() { abrirHistorico('hoje'); };
-            document.getElementById('btnLimpar').onclick = function() {
+            $('btnHistorico').onclick = function() { abrirHistorico('hoje'); };
+
+            // Limpar
+            $('btnLimpar').onclick = function() {
                 if (entregas.length === 0) { mostrarNotificacao('⚠️ Nenhuma entrega'); return; }
-                if (confirm('Remover todas?')) { entregas = []; salvarDados(); }
+                if (confirm('Remover todas?')) { entregas = [];
+                    salvarDados(); }
             };
 
             // Fechar mapa
-            document.getElementById('fecharMapa').onclick = function() {
-                document.getElementById('mapaContainer').style.display = 'none';
+            $('fecharMapa').onclick = function() {
+                mapaContainer.style.display = 'none';
             };
 
             // Fechar histórico
-            document.getElementById('fecharHistorico').onclick = function() {
-                document.getElementById('historicoModal').style.display = 'none';
+            $('fecharHistorico').onclick = function() {
+                $('historicoModal').style.display = 'none';
             };
 
-            document.getElementById('historicoModal').onclick = function(e) {
+            $('pontoModal').onclick = function(e) {
                 if (e.target === this) this.style.display = 'none';
             };
 
-            document.getElementById('btnExportar').onclick = exportarRelatorio;
-            document.getElementById('btnBackup').onclick = fazerBackup;
+            $('historicoModal').onclick = function(e) {
+                if (e.target === this) this.style.display = 'none';
+            };
+
+            // Exportar e Backup
+            $('btnExportar').onclick = exportarRelatorio;
+            $('btnBackup').onclick = fazerBackup;
 
             // Filtros
             document.querySelectorAll('.filtro-btn').forEach(btn => {
@@ -1020,7 +2057,16 @@
                 };
             });
 
-            // Adicionar exemplos
+            // Fechar comandos de voz clicando fora
+            document.addEventListener('click', function(e) {
+                if (comandosVoz.classList.contains('active')) {
+                    if (!comandosVoz.contains(e.target) && e.target.id !== 'btnComandoVoz') {
+                        // Não fecha automaticamente
+                    }
+                }
+            });
+
+            // Exemplos
             if (entregas.length === 0 && historico.length === 0) {
                 entregas = [
                     { rua: 'Bento Gonçalves', numero: 120, cliente: 'João', obs: 'AP 302', valor: 15 },
@@ -1031,10 +2077,10 @@
                 salvarDados();
             }
 
-            console.log('✅ App Premium pronto!');
-            console.log(`📦 ${entregas.length} entregas`);
-            console.log(`🏠 Lanchonete: ${pontoPartida}`);
-            falar('App de entregas Camaquã pronto para usar');
+            console.log('✅ App pronto!');
+            console.log('📦 Modo: Rota linear com volta final');
+            console.log('🎤 Comandos de voz ativos');
+            falar('App pronto para usar. Diga ajuda para ver os comandos de voz');
         });
     </script>
 </body>
