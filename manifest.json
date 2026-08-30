@@ -1,7 +1,7 @@
 {
     "name": "Entregas Camaquã Premium",
     "short_name": "Entregas",
-    "description": "App otimizado para entregas com volta à lanchonete",
+    "description": "App com navegação por voz, distâncias e rota otimizada",
     "start_url": "index.html",
     "display": "standalone",
     "background_color": "#0a0a0a",
