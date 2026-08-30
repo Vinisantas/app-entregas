@@ -13,25 +13,25 @@
     
     "icons": [
         {
-            "src": "https://raw.githubusercontent.com/viniisantas/app-entrega/main/icons/icon-192.png",
+            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "https://raw.githubusercontent.com/viniisantas/app-entrega/main/icons/icon-512.png",
+            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "https://raw.githubusercontent.com/viniisantas/app-entrega/main/icons/icon-192.png",
+            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "maskable"
         },
         {
-            "src": "https://raw.githubusercontent.com/viniisantas/app-entrega/main/icons/icon-512.png",
+            "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable"
@@ -45,21 +45,11 @@
             "url": "index.html?action=add",
             "icons": [
                 {
-                    "src": "https://raw.githubusercontent.com/viniisantas/app-entrega/main/icons/icon-96.png",
-                    "sizes": "96x96",
+                    "src": "https://raw.githubusercontent.com/viniisantas/app-entregas/main/icon-192.png",
+                    "sizes": "192x192",
                     "type": "image/png"
                 }
             ]
-        }
-    ],
-    
-    "screenshots": [
-        {
-            "src": "https://raw.githubusercontent.com/viniisantas/app-entrega/main/screenshot.png",
-            "sizes": "360x640",
-            "type": "image/png",
-            "platform": "narrow",
-            "label": "Tela principal do app"
         }
     ]
 }
